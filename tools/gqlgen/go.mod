@@ -1,4 +1,4 @@
-module github.com/odsod/gqlgen-getting-started/tools/gqlgen
+module tools/gqlgen
 
 go 1.13
 

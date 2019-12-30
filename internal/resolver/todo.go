@@ -8,7 +8,7 @@ import (
 )
 
 type todo struct {
-	*Root
+	root *Root
 }
 
 func (t *todo) User(ctx context.Context, obj *model.Todo) (*model.User, error) {

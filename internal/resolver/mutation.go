@@ -10,7 +10,7 @@ import (
 )
 
 type mutationResolver struct {
-	*Root
+	root *Root
 }
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
@@ -20,6 +20,6 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) 
 		Text:   input.Text,
 		UserID: input.UserID,
 	}
-	r.todos = append(r.todos, todo)
+	r.root.Storage.Todos = append(r.root.Storage.Todos, todo)
 	return todo, nil
 }

@@ -4,24 +4,24 @@ import (
 	"log"
 
 	"github.com/odsod/gqlgen-getting-started/internal/graph"
-	"github.com/odsod/gqlgen-getting-started/internal/model"
+	"github.com/odsod/gqlgen-getting-started/internal/storage"
 )
 
 type Root struct {
-	todos []*model.Todo
+	Storage storage.InMemory
 }
 
 func (r *Root) Mutation() graph.MutationResolver {
 	log.Printf("root: mutation")
-	return &mutationResolver{r}
+	return &mutationResolver{root: r}
 }
 
 func (r *Root) Query() graph.QueryResolver {
 	log.Printf("root: query")
-	return &query{r}
+	return &query{root: r}
 }
 
 func (r *Root) Todo() graph.TodoResolver {
 	log.Printf("root: todo")
-	return &todo{r}
+	return &todo{root: r}
 }
