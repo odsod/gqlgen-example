@@ -9,8 +9,12 @@ model:
   filename: internal/model/model_gen.go
   package: model
 
+models:
+  Todo:
+    model: github.com/odsod/gqlgen-getting-started/internal/model.Todo
+
 resolver:
-  filename: internal/resolver/resolver.go
-  type: Resolver
+  filename: internal/resolver/root.go
+  type: Root
 
 autobind: []
