@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 
-	"github.com/odsod/gqlgen-getting-started/internal/model"
+	"github.com/odsod/gqlgen-example/internal/model"
 )
 
 type InMemory struct {

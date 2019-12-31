@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/odsod/gqlgen-getting-started/internal/app/server"
+	"github.com/odsod/gqlgen-example/internal/app/server"
 )
 
 func main() {

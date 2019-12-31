@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/odsod/gqlgen-getting-started/internal/model"
-	"github.com/odsod/gqlgen-getting-started/internal/storage"
+	"github.com/odsod/gqlgen-example/internal/model"
+	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 )
 

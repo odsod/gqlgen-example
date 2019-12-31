@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/odsod/gqlgen-getting-started/internal/dataloader"
-	"github.com/odsod/gqlgen-getting-started/internal/model"
+	"github.com/odsod/gqlgen-example/internal/dataloader"
+	"github.com/odsod/gqlgen-example/internal/model"
 	"go.uber.org/zap"
 )
 

@@ -15,7 +15,7 @@ go-dataloaders-generate: \
 	internal/dataloader/userloader_gen.go
 
 internal/dataloader/userloader_gen.go: $(dataloaden)
-	cd internal/dataloader && $(dataloaden) UserLoader string '*github.com/odsod/gqlgen-getting-started/internal/model.User'
+	cd internal/dataloader && $(dataloaden) UserLoader string '*github.com/odsod/gqlgen-example/internal/model.User'
 
 .PHONY: go-gqlgen-generate
 go-gqlgen-generate: $(gqlgen)

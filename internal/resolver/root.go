@@ -1,8 +1,8 @@
 package resolver
 
 import (
-	"github.com/odsod/gqlgen-getting-started/internal/graph"
-	"github.com/odsod/gqlgen-getting-started/internal/storage"
+	"github.com/odsod/gqlgen-example/internal/graph"
+	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 )
 

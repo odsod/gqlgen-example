@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/odsod/gqlgen-getting-started/internal/model"
+	"github.com/odsod/gqlgen-example/internal/model"
 )
 
 // UserLoaderConfig captures the config to create a new UserLoader

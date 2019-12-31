@@ -6,8 +6,8 @@ import (
 	"context"
 
 	"github.com/google/wire"
-	"github.com/odsod/gqlgen-getting-started/internal/dataloader"
-	"github.com/odsod/gqlgen-getting-started/internal/resolver"
+	"github.com/odsod/gqlgen-example/internal/dataloader"
+	"github.com/odsod/gqlgen-example/internal/resolver"
 )
 
 func Init(ctx context.Context, cfg *Config) (*App, func(), error) {

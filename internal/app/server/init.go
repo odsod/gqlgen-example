@@ -7,11 +7,11 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/handler"
-	"github.com/odsod/gqlgen-getting-started/internal/dataloader"
-	"github.com/odsod/gqlgen-getting-started/internal/graph"
-	"github.com/odsod/gqlgen-getting-started/internal/model"
-	"github.com/odsod/gqlgen-getting-started/internal/resolver"
-	"github.com/odsod/gqlgen-getting-started/internal/storage"
+	"github.com/odsod/gqlgen-example/internal/dataloader"
+	"github.com/odsod/gqlgen-example/internal/graph"
+	"github.com/odsod/gqlgen-example/internal/model"
+	"github.com/odsod/gqlgen-example/internal/resolver"
+	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

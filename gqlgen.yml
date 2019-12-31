@@ -11,7 +11,7 @@ model:
 
 models:
   Todo:
-    model: github.com/odsod/gqlgen-getting-started/internal/model.Todo
+    model: github.com/odsod/gqlgen-example/internal/model.Todo
 
 resolver:
   filename: internal/resolver/root.go
