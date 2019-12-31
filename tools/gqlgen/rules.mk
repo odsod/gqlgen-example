@@ -1,5 +1,5 @@
-cwd := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-gqlgen := $(cwd)/bin/gqlgen
+gqlgen_cwd := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+gqlgen := $(gqlgen_cwd)/bin/gqlgen
 
-$(gqlgen): $(cwd)/go.mod
-	cd $(cwd) && go build -o $@ github.com/99designs/gqlgen
+$(gqlgen): $(gqlgen_cwd)/go.mod
+	cd $(gqlgen_cwd) && go build -o $@ github.com/99designs/gqlgen

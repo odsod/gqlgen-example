@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package odsod.todo.v1beta1;
+
+option csharp_namespace = "Odsod.Todo.V1beta1";
+option java_multiple_files = true;
+option java_outer_classname = "TodoProto";
+option java_package = "com.odsod.todo.v1beta1";
+option go_package = "todopb";
+option objc_class_prefix = "TODO";
+option php_namespace = "Odsod\\Todo\\V1beta1";
+
+// A todo resource.
+message Todo {
+}

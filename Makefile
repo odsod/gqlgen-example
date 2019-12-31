@@ -1,28 +1,64 @@
+.PHONY: all
 all: \
-	go-dataloaders-generate \
-	go-gqlgen-generate \
-	go-wire-generate \
+	protoc-generate \
+	dataloaders-generate \
+	gqlgen-generate \
+	wire-generate \
 	go-lint \
 	go-mod-tidy
 
+.PHONY: clean
+clean:
+	rm -rf build
+	find . -name '*_gen.go' -exec rm {} \+
+	find tools -mindepth 2 -maxdepth 2 -type d -exec rm -rf {} \+
+
+include tools/buf/rules.mk
 include tools/dataloaden/rules.mk
 include tools/golangci-lint/rules.mk
 include tools/gqlgen/rules.mk
+include tools/protoc/rules.mk
+include tools/protoc-gen-go/rules.mk
 include tools/wire/rules.mk
 
-.PHONY: go-dataloaders-generate
-go-dataloaders-generate: \
+.PHONY: buf-check-lint
+buf-check-lint: $(buf)
+	$(buf) check lint
+
+build/proto.bin: proto_files := $(shell find api/proto -type f -name '*.proto')
+build/proto.bin: $(buf) $(proto_files)
+	mkdir -p $(dir $@)
+	$(buf) image build -o $@
+
+.PHONY: protoc-generate
+protoc-generate: build/protoc-generate
+
+build/protoc-generate: go_out := internal/gen/proto/go
+build/protoc-generate: build/proto.bin $(protoc) $(protoc_gen_go)
+	rm -rf $(go_out)
+	mkdir -p $(go_out)
+	$(protoc) --descriptor_set_in=$< --go_out=$(go_out) \
+		$(shell $(buf) ls-files --input $<)
+	touch $@
+
+.PHONY: dataloaders-generate
+dataloaders-generate: \
 	internal/dataloader/userloader_gen.go
 
 internal/dataloader/userloader_gen.go: $(dataloaden)
 	cd internal/dataloader && $(dataloaden) UserLoader string '*github.com/odsod/gqlgen-example/internal/model.User'
 
-.PHONY: go-gqlgen-generate
-go-gqlgen-generate: $(gqlgen)
-	$(gqlgen) generate -v
+.PHONY: gqlgen-generate
+gqlgen-generate: build/gqlgen-generate
 
-.PHONY: go-wire-generate
-go-wire-generate: $(shell find . -type f -name 'wire.go' | sed 's/wire.go/wire_gen.go/')
+build/gqlgen-generate: graphql_files := $(shell find api/graphql -type f)
+build/gqlgen-generate: model_files := $(shell find internal/model -type f -and -not -name '*_gen.go')
+build/gqlgen-generate: $(gqlgen) gqlgen.yml $(graphql_files) $(model_files)
+	$(gqlgen) generate -v
+	touch $@
+
+.PHONY: wire-generate
+wire-generate: $(shell find . -type f -name 'wire.go' | sed 's/wire.go/wire_gen.go/')
 
 %wire_gen.go: $(wire) $(shell find . -type f -not -name 'wire_gen.go')
 	$(wire) gen ./$(dir $@)

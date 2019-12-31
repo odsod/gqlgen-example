@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package odsod.todo.v1beta1;
+
+option csharp_namespace = "Odsod.Todo.V1beta1";
+option java_multiple_files = true;
+option java_outer_classname = "TodoProto";
+option java_package = "com.odsod.todo.v1beta1";
+option go_package = "todopb";
+option objc_class_prefix = "TODO";
+option php_namespace = "Odsod\\Todo\\V1beta1";
+
+import "odsod/todo/v1beta1/todo.proto";
+
+// Manages todos.
+service TodoService {
+  // Lists todos.
+  rpc ListTodos(ListTodosRequest) returns (ListTodosResponse);
+  // Get a todo.
+  rpc GetTodo(GetTodoRequest) returns (GetTodoResponse);
+}
+
+// List todos request.
+message ListTodosRequest {
+}
+
+// List todos response.
+message ListTodosResponse {
+}
+
+// Get todo request.
+message GetTodoRequest {
+  // The ID of the todo.
+  string id = 1;
+}
+
+// Get todo response.
+message GetTodoResponse {
+  // The returned todo.
+  odsod.todo.v1beta1.Todo todo = 1;
+}

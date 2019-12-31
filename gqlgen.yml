@@ -1,5 +1,5 @@
 schema:
-  - "schema/*.graphql"
+  - "api/graphql/*.graphql"
 
 exec:
   filename: internal/graph/graph_gen.go
