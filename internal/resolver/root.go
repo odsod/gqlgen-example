@@ -1,27 +1,30 @@
 package resolver
 
 import (
-	"log"
-
 	"github.com/odsod/gqlgen-getting-started/internal/graph"
 	"github.com/odsod/gqlgen-getting-started/internal/storage"
+	"go.uber.org/zap"
 )
 
 type Root struct {
-	Storage storage.InMemory
+	Storage          *storage.InMemory
+	Logger           *zap.Logger
+	MutationResolver *Mutation
+	QueryResolver    *Query
+	TodoResolver     *Todo
 }
 
 func (r *Root) Mutation() graph.MutationResolver {
-	log.Printf("root: mutation")
-	return &mutationResolver{root: r}
+	r.Logger.Debug("root: mutation")
+	return r.MutationResolver
 }
 
 func (r *Root) Query() graph.QueryResolver {
-	log.Printf("root: query")
-	return &query{root: r}
+	r.Logger.Debug("root: query")
+	return r.QueryResolver
 }
 
 func (r *Root) Todo() graph.TodoResolver {
-	log.Printf("root: todo")
-	return &todo{root: r}
+	r.Logger.Debug("root: todo")
+	return r.TodoResolver
 }

@@ -1,24 +1,39 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"log"
-	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/99designs/gqlgen/handler"
-	"github.com/odsod/gqlgen-getting-started/internal/graph"
-	"github.com/odsod/gqlgen-getting-started/internal/resolver"
+	"github.com/odsod/gqlgen-getting-started/internal/app/server"
 )
 
-const defaultPort = "8080"
-
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
+	configFile := flag.String("config", "config.toml", "config file")
+	flag.Parse()
+	var cfg server.Config
+	if err := cfg.LoadFile(*configFile); err != nil {
+		log.Panic(err)
 	}
-	http.Handle("/", handler.Playground("GraphQL playground", "/graphql"))
-	http.Handle("/graphql", handler.GraphQL(graph.NewExecutableSchema(graph.Config{Resolvers: &resolver.Root{}})))
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	shutdownSignals := []os.Signal{syscall.SIGINT, syscall.SIGTERM}
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		sigChan := make(chan os.Signal, len(shutdownSignals))
+		signal.Notify(sigChan, shutdownSignals...)
+		<-sigChan
+		cancel()
+		signal.Stop(sigChan)
+		close(sigChan)
+	}()
+	app, cleanup, err := server.Init(ctx, &cfg)
+	if err != nil {
+		log.Panic(err)
+	}
+	defer cleanup()
+	if err := app.Run(ctx); err != nil {
+		log.Panic(err)
+	}
 }

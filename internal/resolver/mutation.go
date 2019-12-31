@@ -3,23 +3,27 @@ package resolver
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 
 	"github.com/odsod/gqlgen-getting-started/internal/model"
+	"github.com/odsod/gqlgen-getting-started/internal/storage"
+	"go.uber.org/zap"
 )
 
-type mutationResolver struct {
-	root *Root
+type Mutation struct {
+	Storage *storage.InMemory
+	Logger  *zap.Logger
 }
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	log.Printf("mutation: createTodo: %+v", input)
-	todo := &model.Todo{
+func (r *Mutation) CreateTodo(ctx context.Context, newTodo model.NewTodo) (*model.Todo, error) {
+	r.Logger.Debug("create todo", zap.Any("newTodo", newTodo))
+	todo, err := r.Storage.UpdateTodo(ctx, &model.Todo{
 		ID:     fmt.Sprintf("T%d", rand.Int()),
-		Text:   input.Text,
-		UserID: input.UserID,
+		Text:   newTodo.Text,
+		UserID: newTodo.UserID,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create todo: %w", err)
 	}
-	r.root.Storage.Todos = append(r.root.Storage.Todos, todo)
 	return todo, nil
 }

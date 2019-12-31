@@ -1,0 +1,6 @@
+[HTTPServer]
+Port = 8080
+
+[Logger]
+Level = "debug"
+Development = true

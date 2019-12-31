@@ -2,16 +2,23 @@ package resolver
 
 import (
 	"context"
-	"log"
+	"fmt"
 
 	"github.com/odsod/gqlgen-getting-started/internal/model"
+	"github.com/odsod/gqlgen-getting-started/internal/storage"
+	"go.uber.org/zap"
 )
 
-type query struct {
-	root *Root
+type Query struct {
+	Storage *storage.InMemory
+	Logger  *zap.Logger
 }
 
-func (r *query) Todos(ctx context.Context) ([]*model.Todo, error) {
-	log.Printf("query: todos")
-	return r.root.Storage.Todos, nil
+func (r *Query) Todos(ctx context.Context) ([]*model.Todo, error) {
+	r.Logger.Debug("query: todos")
+	todos, err := r.Storage.ListTodos(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("resolve todos: %w", err)
+	}
+	return todos, nil
 }

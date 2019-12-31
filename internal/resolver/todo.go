@@ -2,19 +2,26 @@ package resolver
 
 import (
 	"context"
-	"log"
+	"fmt"
 
+	"github.com/odsod/gqlgen-getting-started/internal/dataloader"
 	"github.com/odsod/gqlgen-getting-started/internal/model"
+	"go.uber.org/zap"
 )
 
-type todo struct {
-	root *Root
+type Todo struct {
+	Logger *zap.Logger
 }
 
-func (t *todo) User(ctx context.Context, obj *model.Todo) (*model.User, error) {
-	log.Printf("todo %s: user %s", obj.ID, obj.UserID)
-	return &model.User{
-		ID:   "1234",
-		Name: "John Smith",
-	}, nil
+func (t *Todo) User(ctx context.Context, todo *model.Todo) (*model.User, error) {
+	t.Logger.Debug("todo: user", zap.Any("todo", todo))
+	userLoader, ok := dataloader.UserLoaderFromContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("resolve todo %s user %s: no user data loader in context", todo.ID, todo.UserID)
+	}
+	user, err := userLoader.Load(todo.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("resolve todo %s user %s: %w", todo.ID, todo.UserID, err)
+	}
+	return user, nil
 }
