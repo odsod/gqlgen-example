@@ -7,7 +7,7 @@ package server
 
 import (
 	"context"
-	"github.com/odsod/gqlgen-example/internal/dataloader"
+	"github.com/odsod/gqlgen-example/internal/middleware"
 	"github.com/odsod/gqlgen-example/internal/resolver"
 )
 
@@ -42,11 +42,11 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 		TodoResolver:     todo,
 	}
 	executableSchema := InitExecutableSchema(root)
-	middleware := &dataloader.Middleware{
+	dataloader := &middleware.Dataloader{
 		Storage: inMemory,
 		Logger:  logger,
 	}
-	serveMux := InitHTTPServeMux(logger, executableSchema, middleware)
+	serveMux := InitHTTPServeMux(logger, executableSchema, dataloader)
 	server := InitHTTPServer(cfg, serveMux)
 	app := &App{
 		HTTPServer: server,

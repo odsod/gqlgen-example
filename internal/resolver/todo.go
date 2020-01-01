@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/odsod/gqlgen-example/internal/dataloader"
+	"github.com/odsod/gqlgen-example/internal/middleware"
 	"github.com/odsod/gqlgen-example/internal/model"
 	"go.uber.org/zap"
 )
@@ -15,7 +15,7 @@ type Todo struct {
 
 func (t *Todo) User(ctx context.Context, todo *model.Todo) (*model.User, error) {
 	t.Logger.Debug("todo: user", zap.Any("todo", todo))
-	userLoader, ok := dataloader.UserLoaderFromContext(ctx)
+	userLoader, ok := middleware.UserLoaderFromContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("resolve todo %s user %s: no user data loader in context", todo.ID, todo.UserID)
 	}

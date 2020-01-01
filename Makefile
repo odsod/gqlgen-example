@@ -9,7 +9,7 @@ all: \
 
 .PHONY: clean
 clean:
-	rm -rf build
+	rm -rf build internal/gen
 	find . -name '*_gen.go' -exec rm {} \+
 	find tools -mindepth 2 -maxdepth 2 -type d -exec rm -rf {} \+
 
@@ -43,10 +43,14 @@ build/protoc-generate: build/proto.bin $(protoc) $(protoc_gen_go)
 
 .PHONY: dataloaders-generate
 dataloaders-generate: \
-	internal/dataloader/userloader_gen.go
+	internal/gen/dataloader/userloader_gen.go
 
-internal/dataloader/userloader_gen.go: $(dataloaden)
-	cd internal/dataloader && $(dataloaden) UserLoader string '*github.com/odsod/gqlgen-example/internal/model.User'
+internal/gen/dataloader/package.go:
+	mkdir -p $(dir $@)
+	echo 'package dataloader' > $@
+
+internal/gen/dataloader/userloader_gen.go: $(dataloaden) internal/gen/dataloader/package.go
+	cd $(dir $@) && $(dataloaden) UserLoader string '*github.com/odsod/gqlgen-example/internal/model.User'
 
 .PHONY: gqlgen-generate
 gqlgen-generate: build/gqlgen-generate

@@ -6,7 +6,7 @@ import (
 	"context"
 
 	"github.com/google/wire"
-	"github.com/odsod/gqlgen-example/internal/dataloader"
+	"github.com/odsod/gqlgen-example/internal/middleware"
 	"github.com/odsod/gqlgen-example/internal/resolver"
 )
 
@@ -23,7 +23,7 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 			wire.Struct(new(resolver.Query), "*"),
 			wire.Struct(new(resolver.Mutation), "*"),
 			wire.Struct(new(resolver.Todo), "*"),
-			wire.Struct(new(dataloader.Middleware), "*"),
+			wire.Struct(new(middleware.Dataloader), "*"),
 		),
 	)
 }

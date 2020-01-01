@@ -1,4 +1,4 @@
-package dataloader
+package middleware
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/odsod/gqlgen-example/internal/gen/dataloader"
 	"github.com/odsod/gqlgen-example/internal/model"
 	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
@@ -15,12 +16,12 @@ type (
 	userLoaderKey struct{}
 )
 
-func UserLoaderFromContext(ctx context.Context) (*UserLoader, bool) {
-	userLoader, ok := ctx.Value(userLoaderKey{}).(*UserLoader)
+func UserLoaderFromContext(ctx context.Context) (*dataloader.UserLoader, bool) {
+	userLoader, ok := ctx.Value(userLoaderKey{}).(*dataloader.UserLoader)
 	return userLoader, ok
 }
 
-type Middleware struct {
+type Dataloader struct {
 	Storage *storage.InMemory
 	Logger  *zap.Logger
 }
@@ -33,7 +34,7 @@ func makeIndexMap(elements []string) map[string]int {
 	return result
 }
 
-func (m *Middleware) FetchUsers(ctx context.Context, ids []string) ([]*model.User, []error) {
+func (m *Dataloader) FetchUsers(ctx context.Context, ids []string) ([]*model.User, []error) {
 	m.Logger.Debug("fetch users", zap.Strings("ids", ids))
 	users := make([]*model.User, len(ids))
 	errs := make([]error, len(ids))
@@ -54,9 +55,9 @@ func (m *Middleware) FetchUsers(ctx context.Context, ids []string) ([]*model.Use
 	return users, errs
 }
 
-func (m *Middleware) ApplyMiddleware(next http.Handler) http.Handler {
+func (m *Dataloader) ApplyMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(context.WithValue(r.Context(), userLoaderKey{}, NewUserLoader(UserLoaderConfig{
+		r = r.WithContext(context.WithValue(r.Context(), userLoaderKey{}, dataloader.NewUserLoader(dataloader.UserLoaderConfig{
 			Wait:     1 * time.Millisecond,
 			MaxBatch: 100,
 			Fetch: func(ids []string) (users []*model.User, errors []error) {

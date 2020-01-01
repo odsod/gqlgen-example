@@ -7,8 +7,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/handler"
-	"github.com/odsod/gqlgen-example/internal/dataloader"
 	"github.com/odsod/gqlgen-example/internal/graph"
+	"github.com/odsod/gqlgen-example/internal/middleware"
 	"github.com/odsod/gqlgen-example/internal/model"
 	"github.com/odsod/gqlgen-example/internal/resolver"
 	"github.com/odsod/gqlgen-example/internal/storage"
@@ -69,7 +69,7 @@ func InitExecutableSchema(
 func InitHTTPServeMux(
 	logger *zap.Logger,
 	executableSchema graphql.ExecutableSchema,
-	dataLoaderMiddleware *dataloader.Middleware,
+	dataLoaderMiddleware *middleware.Dataloader,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
 	for _, route := range []struct {
