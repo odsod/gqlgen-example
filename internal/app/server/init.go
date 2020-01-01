@@ -7,8 +7,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/handler"
+	"github.com/odsod/gqlgen-example/internal/gen/graph"
 	todov1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1"
-	"github.com/odsod/gqlgen-example/internal/graph"
 	"github.com/odsod/gqlgen-example/internal/middleware"
 	"github.com/odsod/gqlgen-example/internal/model"
 	"github.com/odsod/gqlgen-example/internal/resolver"

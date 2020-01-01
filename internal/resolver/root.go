@@ -1,7 +1,7 @@
 package resolver
 
 import (
-	"github.com/odsod/gqlgen-example/internal/graph"
+	"github.com/odsod/gqlgen-example/internal/gen/graph"
 	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 )

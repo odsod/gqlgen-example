@@ -2,7 +2,7 @@ schema:
   - "api/graphql/*.graphql"
 
 exec:
-  filename: internal/graph/graph_gen.go
+  filename: internal/gen/graph/graph_gen.go
   package: graph
 
 model:
