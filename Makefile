@@ -25,6 +25,8 @@ include tools/wire/rules.mk
 buf-check-lint: $(buf)
 	$(buf) check lint
 
+proto_files := $(shell find api/proto -type f -name '*.proto')
+
 build/proto.bin: proto_files := $(shell find api/proto -type f -name '*.proto')
 build/proto.bin: $(buf) $(proto_files)
 	mkdir -p $(dir $@)
@@ -55,8 +57,9 @@ internal/gen/dataloader/userloader_gen.go: $(dataloaden) internal/gen/dataloader
 .PHONY: gqlgen-generate
 gqlgen-generate: build/gqlgen-generate
 
-build/gqlgen-generate: graphql_files := $(shell find api/graphql -type f)
-build/gqlgen-generate: model_files := $(shell find internal/model -type f -and -not -name '*_gen.go')
+graphql_files := $(shell find api/graphql -type f)
+model_files := $(shell find internal/model -type f -and -not -name '*_gen.go')
+
 build/gqlgen-generate: $(gqlgen) gqlgen.yml $(graphql_files) $(model_files)
 	$(gqlgen) generate -v
 	touch $@

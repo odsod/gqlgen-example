@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/handler"
+	todov1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1"
 	"github.com/odsod/gqlgen-example/internal/graph"
 	"github.com/odsod/gqlgen-example/internal/middleware"
 	"github.com/odsod/gqlgen-example/internal/model"
@@ -20,25 +21,25 @@ func InitInMemoryStorage(
 	ctx context.Context,
 ) (*storage.InMemory, error) {
 	inMemoryStorage := storage.NewInMemory()
-	for _, todo := range []*model.Todo{
+	for _, todo := range []*todov1beta1.Todo{
 		{
-			ID:     "todo1",
-			UserID: "user1",
+			Id:     "todo1",
+			UserId: "user1",
 			Text:   "Todo 1",
 		},
 		{
-			ID:     "todo2",
-			UserID: "user2",
+			Id:     "todo2",
+			UserId: "user2",
 			Text:   "Todo 2",
 		},
 		{
-			ID:     "todo3",
-			UserID: "user2",
+			Id:     "todo3",
+			UserId: "user2",
 			Text:   "Todo 3",
 		},
 		{
-			ID:     "todo4",
-			UserID: "user3",
+			Id:     "todo4",
+			UserId: "user3",
 			Text:   "Todo 4",
 		},
 	} {
