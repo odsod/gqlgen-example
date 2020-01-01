@@ -35,6 +35,8 @@ message ListUsersRequest {
   int32 page_size = 1;
   // The next_page_token value returned from a previous List request, if any.
   string page_token = 2;
+  // Flag for including deleted resources.
+  bool show_deleted = 3;
 }
 
 // List users response.
