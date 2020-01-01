@@ -18,22 +18,22 @@ message User {
   // For example: "users/1234"
   string id = 1;
 
-  // Full display name of the user.
-  // For example: "Jane Smith"
-  string display_name = 2;
-
   // Indicates if the user is deleted.
-  bool deleted = 3;
+  bool deleted = 2;
 
   // The creation timestamp of the user.
-  google.protobuf.Timestamp create_time = 4;
+  google.protobuf.Timestamp create_time = 3;
 
   // The last update timestamp of the user.
   //
   // Note: update_time is updated when create/update/delete operation is
   // performed.
-  google.protobuf.Timestamp update_time = 5;
+  google.protobuf.Timestamp update_time = 4;
 
   // The deletion timestamp of the user.
-  google.protobuf.Timestamp delete_time = 6;
+  google.protobuf.Timestamp delete_time = 5;
+
+  // Full display name of the user.
+  // For example: "Jane Smith"
+  string display_name = 6;
 }

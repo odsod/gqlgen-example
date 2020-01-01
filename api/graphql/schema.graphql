@@ -14,7 +14,10 @@ type Todo {
 type User {
   id: ID!
   displayName: String!
+  deleted: Boolean!
   createTime: Timestamp!
+  updateTime: Timestamp!
+  deleteTime: Timestamp
 }
 
 type Query {

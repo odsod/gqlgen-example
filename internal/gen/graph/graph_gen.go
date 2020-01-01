@@ -64,8 +64,11 @@ type ComplexityRoot struct {
 
 	User struct {
 		CreateTime  func(childComplexity int) int
+		DeleteTime  func(childComplexity int) int
+		Deleted     func(childComplexity int) int
 		DisplayName func(childComplexity int) int
 		Id          func(childComplexity int) int
+		UpdateTime  func(childComplexity int) int
 	}
 }
 
@@ -148,6 +151,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.CreateTime(childComplexity), true
 
+	case "User.deleteTime":
+		if e.complexity.User.DeleteTime == nil {
+			break
+		}
+
+		return e.complexity.User.DeleteTime(childComplexity), true
+
+	case "User.deleted":
+		if e.complexity.User.Deleted == nil {
+			break
+		}
+
+		return e.complexity.User.Deleted(childComplexity), true
+
 	case "User.displayName":
 		if e.complexity.User.DisplayName == nil {
 			break
@@ -161,6 +178,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Id(childComplexity), true
+
+	case "User.updateTime":
+		if e.complexity.User.UpdateTime == nil {
+			break
+		}
+
+		return e.complexity.User.UpdateTime(childComplexity), true
 
 	}
 	return 0, false
@@ -240,7 +264,10 @@ type Todo {
 type User {
   id: ID!
   displayName: String!
+  deleted: Boolean!
   createTime: Timestamp!
+  updateTime: Timestamp!
+  deleteTime: Timestamp
 }
 
 type Query {
@@ -704,6 +731,43 @@ func (ec *executionContext) _User_displayName(ctx context.Context, field graphql
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _User_deleted(ctx context.Context, field graphql.CollectedField, obj *userv1beta1.User) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Deleted, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _User_createTime(ctx context.Context, field graphql.CollectedField, obj *userv1beta1.User) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -739,6 +803,77 @@ func (ec *executionContext) _User_createTime(ctx context.Context, field graphql.
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNTimestamp2ᚖgithubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_updateTime(ctx context.Context, field graphql.CollectedField, obj *userv1beta1.User) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdateTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*timestamp.Timestamp)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNTimestamp2ᚖgithubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_deleteTime(ctx context.Context, field graphql.CollectedField, obj *userv1beta1.User) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeleteTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*timestamp.Timestamp)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOTimestamp2ᚖgithubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2071,11 +2206,23 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "deleted":
+			out.Values[i] = ec._User_deleted(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createTime":
 			out.Values[i] = ec._User_createTime(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "updateTime":
+			out.Values[i] = ec._User_updateTime(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deleteTime":
+			out.Values[i] = ec._User_deleteTime(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2745,6 +2892,29 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return ec.marshalOString2string(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalOTimestamp2githubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx context.Context, v interface{}) (timestamp.Timestamp, error) {
+	return model.UnmarshalGoogleProtobufTimestamp(v)
+}
+
+func (ec *executionContext) marshalOTimestamp2githubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx context.Context, sel ast.SelectionSet, v timestamp.Timestamp) graphql.Marshaler {
+	return model.MarshalGoogleProtobufTimestamp(v)
+}
+
+func (ec *executionContext) unmarshalOTimestamp2ᚖgithubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx context.Context, v interface{}) (*timestamp.Timestamp, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOTimestamp2githubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOTimestamp2ᚖgithubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx context.Context, sel ast.SelectionSet, v *timestamp.Timestamp) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOTimestamp2githubᚗcomᚋgolangᚋprotobufᚋptypesᚋtimestampᚐTimestamp(ctx, sel, *v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

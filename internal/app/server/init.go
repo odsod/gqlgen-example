@@ -53,16 +53,21 @@ func InitInMemoryStorage(
 			Id:          "user1",
 			DisplayName: "User 1",
 			CreateTime:  ptypes.TimestampNow(),
+			UpdateTime:  ptypes.TimestampNow(),
 		},
 		{
 			Id:          "user2",
 			DisplayName: "User 2",
 			CreateTime:  ptypes.TimestampNow(),
+			UpdateTime:  ptypes.TimestampNow(),
 		},
 		{
 			Id:          "user3",
 			DisplayName: "User 3",
+			Deleted:     true,
 			CreateTime:  ptypes.TimestampNow(),
+			UpdateTime:  ptypes.TimestampNow(),
+			DeleteTime:  ptypes.TimestampNow(),
 		},
 	} {
 		if _, err := inMemoryStorage.UpdateUser(ctx, user); err != nil {
