@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package odsod.user.v1beta1;
+
+option csharp_namespace = "Odsod.User.V1beta1";
+option java_multiple_files = true;
+option java_outer_classname = "UserServiceProto";
+option java_package = "com.odsod.user.v1beta1";
+option go_package = "userv1beta1";
+option objc_class_prefix = "USER";
+option php_namespace = "Odsod\\User\\V1beta1";
+
+import "google/protobuf/field_mask.proto";
+import "odsod/user/v1beta1/user.proto";
+
+// Manages users.
+service UserService {
+  // List users.
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  // Get a user.
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  // Get a batch of users.
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+  // Create a user.
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  // Update a user.
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  // Delete a user.
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+}
+
+// List users request.
+message ListUsersRequest {
+  // The maximum number of items to return.
+  int32 page_size = 1;
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 2;
+}
+
+// List users response.
+message ListUsersResponse {
+  // The returned users.
+  repeated odsod.user.v1beta1.User users = 1;
+  // Token to retrieve the next page of results, or empty if there are no
+  // more results in the list.
+  string next_page_token = 2;
+}
+
+// Get user request.
+message GetUserRequest {
+  // The ID of the user to get.
+  string id = 1;
+}
+
+// Get user response.
+message GetUserResponse {
+  // The returned user.
+  odsod.user.v1beta1.User user = 1;
+}
+
+// Batch get users request.
+message BatchGetUsersRequest {
+  // The IDs of the users to get.
+  repeated string ids = 1;
+}
+
+// Batch get users response.
+message BatchGetUsersResponse {
+  // The found users.
+  //
+  // The order of results in this field is undefined and has no relation to the
+  // order of the keys in the input.
+  repeated odsod.user.v1beta1.User found_users = 1;
+
+  // The missing IDs.
+  //
+  // The order of results in this field is undefined and has no relation to the
+  // order of the keys in the input.
+  repeated string missing_ids = 2;
+}
+
+// Create user request.
+message CreateUserRequest {
+  // The user id to use for this user.
+  string user_id = 1;
+
+  // The user resource to create.
+  odsod.user.v1beta1.User user = 2;
+}
+
+// Create user response.
+message CreateUserResponse {
+  // The created user.
+  odsod.user.v1beta1.User user = 1;
+}
+
+// Update user request.
+message UpdateUserRequest {
+  // The user resource which replaces the current user resource.
+  odsod.user.v1beta1.User user = 1;
+
+  // The update mask applies to the resource.
+  //
+  // For the `FieldMask` definition, see:
+  // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+// Update user response.
+message UpdateUserResponse {
+  // The updated user.
+  odsod.user.v1beta1.User user = 1;
+}
+
+// Delete user request.
+message DeleteUserRequest {
+  // The ID of the user to mark for deletion.
+  string id = 1;
+}
+
+// Delete user response.
+message DeleteUserResponse {
+  // The user marked for deletion.
+  odsod.user.v1beta1.User user = 1;
+}

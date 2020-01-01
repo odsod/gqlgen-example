@@ -55,15 +55,15 @@ type ComplexityRoot struct {
 	}
 
 	Todo struct {
-		Id     func(childComplexity int) int
-		IsDone func(childComplexity int) int
-		Text   func(childComplexity int) int
-		User   func(childComplexity int) int
+		Done func(childComplexity int) int
+		Id   func(childComplexity int) int
+		Text func(childComplexity int) int
+		User func(childComplexity int) int
 	}
 
 	User struct {
-		FullName func(childComplexity int) int
-		Id       func(childComplexity int) int
+		DisplayName func(childComplexity int) int
+		Id          func(childComplexity int) int
 	}
 }
 
@@ -111,19 +111,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Todos(childComplexity), true
 
+	case "Todo.done":
+		if e.complexity.Todo.Done == nil {
+			break
+		}
+
+		return e.complexity.Todo.Done(childComplexity), true
+
 	case "Todo.id":
 		if e.complexity.Todo.Id == nil {
 			break
 		}
 
 		return e.complexity.Todo.Id(childComplexity), true
-
-	case "Todo.isDone":
-		if e.complexity.Todo.IsDone == nil {
-			break
-		}
-
-		return e.complexity.Todo.IsDone(childComplexity), true
 
 	case "Todo.text":
 		if e.complexity.Todo.Text == nil {
@@ -139,12 +139,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Todo.User(childComplexity), true
 
-	case "User.fullName":
-		if e.complexity.User.FullName == nil {
+	case "User.displayName":
+		if e.complexity.User.DisplayName == nil {
 			break
 		}
 
-		return e.complexity.User.FullName(childComplexity), true
+		return e.complexity.User.DisplayName(childComplexity), true
 
 	case "User.id":
 		if e.complexity.User.Id == nil {
@@ -222,13 +222,13 @@ var parsedSchema = gqlparser.MustLoadSchema(
 type Todo {
   id: ID!
   text: String!
-  isDone: Boolean!
+  done: Boolean!
   user: User!
 }
 
 type User {
   id: ID!
-  fullName: String!
+  displayName: String!
 }
 
 type Query {
@@ -544,7 +544,7 @@ func (ec *executionContext) _Todo_text(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Todo_isDone(ctx context.Context, field graphql.CollectedField, obj *todov1beta1.Todo) (ret graphql.Marshaler) {
+func (ec *executionContext) _Todo_done(ctx context.Context, field graphql.CollectedField, obj *todov1beta1.Todo) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -563,7 +563,7 @@ func (ec *executionContext) _Todo_isDone(ctx context.Context, field graphql.Coll
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IsDone, nil
+		return obj.Done, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -655,7 +655,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_fullName(ctx context.Context, field graphql.CollectedField, obj *userv1beta1.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_displayName(ctx context.Context, field graphql.CollectedField, obj *userv1beta1.User) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -674,7 +674,7 @@ func (ec *executionContext) _User_fullName(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.FullName, nil
+		return obj.DisplayName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1971,8 +1971,8 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "isDone":
-			out.Values[i] = ec._Todo_isDone(ctx, field, obj)
+		case "done":
+			out.Values[i] = ec._Todo_done(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
@@ -2017,8 +2017,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "fullName":
-			out.Values[i] = ec._User_fullName(ctx, field, obj)
+		case "displayName":
+			out.Values[i] = ec._User_displayName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

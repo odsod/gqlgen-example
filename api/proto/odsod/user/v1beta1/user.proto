@@ -10,12 +10,30 @@ option go_package = "userv1beta1";
 option objc_class_prefix = "USER";
 option php_namespace = "Odsod\\User\\V1beta1";
 
+import "google/protobuf/timestamp.proto";
+
 // A user resource.
 message User {
   // Resource name of the user.
   // For example: "users/1234"
   string id = 1;
-  // Full name of the user.
+
+  // Full display name of the user.
   // For example: "Jane Smith"
-  string full_name = 2;
+  string display_name = 2;
+
+  // Indicates if the user is deleted.
+  bool deleted = 3;
+
+  // The creation timestamp of the user.
+  google.protobuf.Timestamp create_time = 4;
+
+  // The last update timestamp of the user.
+  //
+  // Note: update_time is updated when create/update/delete operation is
+  // performed.
+  google.protobuf.Timestamp update_time = 5;
+
+  // The deletion timestamp of the user.
+  google.protobuf.Timestamp delete_time = 6;
 }

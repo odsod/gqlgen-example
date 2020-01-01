@@ -49,16 +49,16 @@ func InitInMemoryStorage(
 	}
 	for _, user := range []*userv1beta1.User{
 		{
-			Id:       "user1",
-			FullName: "User 1",
+			Id:          "user1",
+			DisplayName: "User 1",
 		},
 		{
-			Id:       "user2",
-			FullName: "User 2",
+			Id:          "user2",
+			DisplayName: "User 2",
 		},
 		{
-			Id:       "user3",
-			FullName: "User 3",
+			Id:          "user3",
+			DisplayName: "User 3",
 		},
 	} {
 		if _, err := inMemoryStorage.UpdateUser(ctx, user); err != nil {

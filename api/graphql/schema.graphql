@@ -5,13 +5,13 @@
 type Todo {
   id: ID!
   text: String!
-  isDone: Boolean!
+  done: Boolean!
   user: User!
 }
 
 type User {
   id: ID!
-  fullName: String!
+  displayName: String!
 }
 
 type Query {

@@ -19,7 +19,7 @@ message Todo {
   // For example: "Do chores."
   string text = 2;
   // Flag for marking the todo as done.
-  bool is_done = 3;
+  bool done = 3;
   // Resource name of the owner of the todo.
   // For example: "users/1234"
   string user_id = 4;
