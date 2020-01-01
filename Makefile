@@ -1,3 +1,5 @@
+curr_file := $(lastword $(MAKEFILE_LIST))
+
 .PHONY: all
 all: \
 	protoc-generate \
@@ -52,7 +54,7 @@ internal/gen/dataloader/package.go:
 	mkdir -p $(dir $@)
 	echo 'package dataloader' > $@
 
-internal/gen/dataloader/userloader_gen.go: $(dataloaden) internal/gen/dataloader/package.go
+internal/gen/dataloader/userloader_gen.go: $(dataloaden) $(curr_file) internal/gen/dataloader/package.go
 	cd $(dir $@) && $(dataloaden) UserLoader string '*github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1.User'
 
 .PHONY: gqlgen-generate
