@@ -1,6 +1,9 @@
 [HTTPServer]
 Port = 8080
 
+[GRPCServer]
+Port = 8081
+
 [Logger]
 Level = "debug"
 Development = true

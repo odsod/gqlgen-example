@@ -12,6 +12,10 @@ type Config struct {
 		Port int
 	}
 
+	GRPCServer struct {
+		Port int
+	}
+
 	Logger struct {
 		Level       string
 		Development bool

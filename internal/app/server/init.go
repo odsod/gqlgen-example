@@ -16,6 +16,7 @@ import (
 	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/grpc"
 )
 
 func InitInMemoryStorage(
@@ -77,6 +78,10 @@ func InitInMemoryStorage(
 	return inMemoryStorage, nil
 }
 
+func InitGRPCServer() *grpc.Server {
+	return grpc.NewServer()
+}
+
 func InitExecutableSchema(
 	rootResolver *resolver.Root,
 ) graphql.ExecutableSchema {
@@ -104,7 +109,7 @@ func InitHTTPServeMux(
 			handler: handler.Playground("GraphQL playground", "/graphql"),
 		},
 	} {
-		logger.Info("route", zap.String("pattern", route.pattern))
+		logger.Info("HTTP route", zap.String("pattern", route.pattern))
 		mux.Handle(route.pattern, route.handler)
 	}
 	return mux

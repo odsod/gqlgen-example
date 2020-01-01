@@ -19,6 +19,7 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 			InitHTTPServeMux,
 			InitExecutableSchema,
 			InitInMemoryStorage,
+			InitGRPCServer,
 			wire.Struct(new(resolver.Root), "*"),
 			wire.Struct(new(resolver.Query), "*"),
 			wire.Struct(new(resolver.Mutation), "*"),
