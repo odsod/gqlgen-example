@@ -13,8 +13,4 @@ models:
   Todo:
     model: github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1.Todo
 
-resolver:
-  filename: internal/resolver/root.go
-  type: Root
-
 autobind: []
