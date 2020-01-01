@@ -2,6 +2,8 @@
 #
 # https://gqlgen.com/getting-started/
 
+scalar Timestamp
+
 type Todo {
   id: ID!
   text: String!
@@ -12,6 +14,7 @@ type Todo {
 type User {
   id: ID!
   displayName: String!
+  createTime: Timestamp!
 }
 
 type Query {

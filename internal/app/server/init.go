@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/handler"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/odsod/gqlgen-example/internal/gen/graph"
 	todov1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1"
 	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
@@ -51,14 +52,17 @@ func InitInMemoryStorage(
 		{
 			Id:          "user1",
 			DisplayName: "User 1",
+			CreateTime:  ptypes.TimestampNow(),
 		},
 		{
 			Id:          "user2",
 			DisplayName: "User 2",
+			CreateTime:  ptypes.TimestampNow(),
 		},
 		{
 			Id:          "user3",
 			DisplayName: "User 3",
+			CreateTime:  ptypes.TimestampNow(),
 		},
 	} {
 		if _, err := inMemoryStorage.UpdateUser(ctx, user); err != nil {
