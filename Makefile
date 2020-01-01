@@ -37,12 +37,12 @@ build/proto.bin: $(buf) $(proto_files)
 protoc-generate: build/protoc-generate
 
 build/protoc-generate: go_out := internal/gen/proto/go
-build/protoc-generate: build/proto.bin $(protoc) $(protoc_gen_go)
+build/protoc-generate: build/proto.bin $(curr_file) $(protoc) $(protoc_gen_go)
 	rm -rf $(go_out)
 	mkdir -p $(go_out)
-	$(protoc) --descriptor_set_in=$< --go_out=$(go_out) \
+	$(protoc) --descriptor_set_in=$< --go_out=plugins=grpc:$(go_out) \
 		$(shell cd api/proto && find odsod/todo -type f)
-	$(protoc) --descriptor_set_in=$< --go_out=$(go_out) \
+	$(protoc) --descriptor_set_in=$< --go_out=plugins=grpc:$(go_out) \
 		$(shell cd api/proto && find odsod/user -type f)
 	touch $@
 

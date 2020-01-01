@@ -4,8 +4,12 @@
 package todov1beta1
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -196,4 +200,124 @@ var fileDescriptor_2fff1e5a549d09c3 = []byte{
 	0xe2, 0xef, 0xe2, 0xbf, 0x8a, 0x49, 0xc8, 0x1f, 0xac, 0x19, 0xa4, 0x5c, 0x2f, 0x0c, 0x22, 0x77,
 	0x0a, 0x2a, 0x18, 0x03, 0x12, 0x8c, 0x81, 0x0a, 0x26, 0xb1, 0x81, 0x23, 0xcf, 0x18, 0x10, 0x00,
 	0x00, 0xff, 0xff, 0x26, 0xda, 0xc2, 0x88, 0x18, 0x02, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// TodoServiceClient is the client API for TodoService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type TodoServiceClient interface {
+	// Lists todos.
+	ListTodos(ctx context.Context, in *ListTodosRequest, opts ...grpc.CallOption) (*ListTodosResponse, error)
+	// Get a todo.
+	GetTodo(ctx context.Context, in *GetTodoRequest, opts ...grpc.CallOption) (*GetTodoResponse, error)
+}
+
+type todoServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewTodoServiceClient(cc *grpc.ClientConn) TodoServiceClient {
+	return &todoServiceClient{cc}
+}
+
+func (c *todoServiceClient) ListTodos(ctx context.Context, in *ListTodosRequest, opts ...grpc.CallOption) (*ListTodosResponse, error) {
+	out := new(ListTodosResponse)
+	err := c.cc.Invoke(ctx, "/odsod.todo.v1beta1.TodoService/ListTodos", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoServiceClient) GetTodo(ctx context.Context, in *GetTodoRequest, opts ...grpc.CallOption) (*GetTodoResponse, error) {
+	out := new(GetTodoResponse)
+	err := c.cc.Invoke(ctx, "/odsod.todo.v1beta1.TodoService/GetTodo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TodoServiceServer is the server API for TodoService service.
+type TodoServiceServer interface {
+	// Lists todos.
+	ListTodos(context.Context, *ListTodosRequest) (*ListTodosResponse, error)
+	// Get a todo.
+	GetTodo(context.Context, *GetTodoRequest) (*GetTodoResponse, error)
+}
+
+// UnimplementedTodoServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedTodoServiceServer struct {
+}
+
+func (*UnimplementedTodoServiceServer) ListTodos(ctx context.Context, req *ListTodosRequest) (*ListTodosResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTodos not implemented")
+}
+func (*UnimplementedTodoServiceServer) GetTodo(ctx context.Context, req *GetTodoRequest) (*GetTodoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTodo not implemented")
+}
+
+func RegisterTodoServiceServer(s *grpc.Server, srv TodoServiceServer) {
+	s.RegisterService(&_TodoService_serviceDesc, srv)
+}
+
+func _TodoService_ListTodos_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTodosRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).ListTodos(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/odsod.todo.v1beta1.TodoService/ListTodos",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).ListTodos(ctx, req.(*ListTodosRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TodoService_GetTodo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTodoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServiceServer).GetTodo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/odsod.todo.v1beta1.TodoService/GetTodo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServiceServer).GetTodo(ctx, req.(*GetTodoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _TodoService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "odsod.todo.v1beta1.TodoService",
+	HandlerType: (*TodoServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListTodos",
+			Handler:    _TodoService_ListTodos_Handler,
+		},
+		{
+			MethodName: "GetTodo",
+			Handler:    _TodoService_GetTodo_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "odsod/todo/v1beta1/todo_service.proto",
 }
