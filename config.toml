@@ -1,3 +1,7 @@
+[HTTPServeMux.Patterns]
+GraphQLPlayground = "/"
+GraphQL = "/graphql"
+
 [HTTPServer]
 Port = 8080
 

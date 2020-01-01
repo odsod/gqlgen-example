@@ -46,7 +46,7 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 		Storage: inMemory,
 		Logger:  logger,
 	}
-	serveMux := InitHTTPServeMux(logger, executableSchema, dataloader)
+	serveMux := InitHTTPServeMux(cfg, logger, executableSchema, dataloader)
 	server := InitHTTPServer(cfg, serveMux)
 	grpcServer := InitGRPCServer()
 	app := &App{

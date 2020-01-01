@@ -91,6 +91,7 @@ func InitExecutableSchema(
 }
 
 func InitHTTPServeMux(
+	c *Config,
 	logger *zap.Logger,
 	executableSchema graphql.ExecutableSchema,
 	dataLoaderMiddleware *middleware.Dataloader,
@@ -101,12 +102,12 @@ func InitHTTPServeMux(
 		handler http.Handler
 	}{
 		{
-			pattern: "/graphql",
+			pattern: c.HTTPServeMux.Patterns.GraphQL,
 			handler: dataLoaderMiddleware.ApplyMiddleware(handler.GraphQL(executableSchema)),
 		},
 		{
-			pattern: "/",
-			handler: handler.Playground("GraphQL playground", "/graphql"),
+			pattern: c.HTTPServeMux.Patterns.GraphQLPlayground,
+			handler: handler.Playground("GraphQL playground", c.HTTPServeMux.Patterns.GraphQL),
 		},
 	} {
 		logger.Info("HTTP route", zap.String("pattern", route.pattern))

@@ -8,6 +8,13 @@ import (
 )
 
 type Config struct {
+	HTTPServeMux struct {
+		Patterns struct {
+			GraphQL           string
+			GraphQLPlayground string
+		}
+	}
+
 	HTTPServer struct {
 		Port int
 	}
