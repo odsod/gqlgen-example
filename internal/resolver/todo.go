@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	todov1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1"
+	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
 	"github.com/odsod/gqlgen-example/internal/middleware"
-	"github.com/odsod/gqlgen-example/internal/model"
 	"go.uber.org/zap"
 )
 
@@ -14,7 +14,7 @@ type Todo struct {
 	Logger *zap.Logger
 }
 
-func (t *Todo) User(ctx context.Context, todo *todov1beta1.Todo) (*model.User, error) {
+func (t *Todo) User(ctx context.Context, todo *todov1beta1.Todo) (*userv1beta1.User, error) {
 	t.Logger.Debug("todo: user", zap.Any("todo", todo))
 	userLoader, ok := middleware.UserLoaderFromContext(ctx)
 	if !ok {

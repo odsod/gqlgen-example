@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/odsod/gqlgen-example/internal/gen/dataloader"
-	"github.com/odsod/gqlgen-example/internal/model"
+	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
 	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 )
@@ -34,9 +34,9 @@ func makeIndexMap(elements []string) map[string]int {
 	return result
 }
 
-func (m *Dataloader) FetchUsers(ctx context.Context, ids []string) ([]*model.User, []error) {
+func (m *Dataloader) FetchUsers(ctx context.Context, ids []string) ([]*userv1beta1.User, []error) {
 	m.Logger.Debug("fetch users", zap.Strings("ids", ids))
-	users := make([]*model.User, len(ids))
+	users := make([]*userv1beta1.User, len(ids))
 	errs := make([]error, len(ids))
 	foundUsers, missingIDs, err := m.Storage.BatchGetUsers(ctx, ids)
 	if err != nil {
@@ -47,7 +47,7 @@ func (m *Dataloader) FetchUsers(ctx context.Context, ids []string) ([]*model.Use
 	}
 	idToIndexMap := makeIndexMap(ids)
 	for _, user := range foundUsers {
-		users[idToIndexMap[user.ID]] = user
+		users[idToIndexMap[user.Id]] = user
 	}
 	for _, missingID := range missingIDs {
 		errs[idToIndexMap[missingID]] = fmt.Errorf("not found: %s", missingID)
@@ -60,7 +60,7 @@ func (m *Dataloader) ApplyMiddleware(next http.Handler) http.Handler {
 		r = r.WithContext(context.WithValue(r.Context(), userLoaderKey{}, dataloader.NewUserLoader(dataloader.UserLoaderConfig{
 			Wait:     1 * time.Millisecond,
 			MaxBatch: 100,
-			Fetch: func(ids []string) (users []*model.User, errors []error) {
+			Fetch: func(ids []string) (users []*userv1beta1.User, errors []error) {
 				return m.FetchUsers(r.Context(), ids)
 			},
 		})))

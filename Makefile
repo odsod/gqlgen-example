@@ -40,7 +40,9 @@ build/protoc-generate: build/proto.bin $(protoc) $(protoc_gen_go)
 	rm -rf $(go_out)
 	mkdir -p $(go_out)
 	$(protoc) --descriptor_set_in=$< --go_out=$(go_out) \
-		$(shell $(buf) ls-files --input $<)
+		$(shell cd api/proto && find odsod/todo -type f)
+	$(protoc) --descriptor_set_in=$< --go_out=$(go_out) \
+		$(shell cd api/proto && find odsod/user -type f)
 	touch $@
 
 .PHONY: dataloaders-generate
@@ -52,7 +54,7 @@ internal/gen/dataloader/package.go:
 	echo 'package dataloader' > $@
 
 internal/gen/dataloader/userloader_gen.go: $(dataloaden) internal/gen/dataloader/package.go
-	cd $(dir $@) && $(dataloaden) UserLoader string '*github.com/odsod/gqlgen-example/internal/model.User'
+	cd $(dir $@) && $(dataloaden) UserLoader string '*github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1.User'
 
 .PHONY: gqlgen-generate
 gqlgen-generate: build/gqlgen-generate

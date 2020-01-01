@@ -4,33 +4,33 @@ import (
 	"context"
 
 	todov1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1"
-	"github.com/odsod/gqlgen-example/internal/model"
+	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
 )
 
 type InMemory struct {
 	todos map[string]*todov1beta1.Todo
-	users map[string]*model.User
+	users map[string]*userv1beta1.User
 }
 
 func NewInMemory() *InMemory {
 	return &InMemory{
 		todos: map[string]*todov1beta1.Todo{},
-		users: map[string]*model.User{},
+		users: map[string]*userv1beta1.User{},
 	}
 }
 
-func (s *InMemory) UpdateUser(_ context.Context, user *model.User) (*model.User, error) {
-	s.users[user.ID] = user
+func (s *InMemory) UpdateUser(_ context.Context, user *userv1beta1.User) (*userv1beta1.User, error) {
+	s.users[user.Id] = user
 	return user, nil
 }
 
-func (s *InMemory) GetUser(_ context.Context, id string) (*model.User, bool, error) {
+func (s *InMemory) GetUser(_ context.Context, id string) (*userv1beta1.User, bool, error) {
 	user, ok := s.users[id]
 	return user, ok, nil
 }
 
-func (s *InMemory) BatchGetUsers(_ context.Context, ids []string) ([]*model.User, []string, error) {
-	var foundUsers []*model.User
+func (s *InMemory) BatchGetUsers(_ context.Context, ids []string) ([]*userv1beta1.User, []string, error) {
+	var foundUsers []*userv1beta1.User
 	var notFoundIDs []string
 	for _, id := range ids {
 		if user, ok := s.users[id]; ok {

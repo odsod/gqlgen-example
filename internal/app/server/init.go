@@ -9,8 +9,8 @@ import (
 	"github.com/99designs/gqlgen/handler"
 	"github.com/odsod/gqlgen-example/internal/gen/graph"
 	todov1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1"
+	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
 	"github.com/odsod/gqlgen-example/internal/middleware"
-	"github.com/odsod/gqlgen-example/internal/model"
 	"github.com/odsod/gqlgen-example/internal/resolver"
 	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
@@ -47,10 +47,19 @@ func InitInMemoryStorage(
 			return nil, fmt.Errorf("init in-memory storage: %w", err)
 		}
 	}
-	for _, user := range []*model.User{
-		{ID: "user1", Name: "User 1"},
-		{ID: "user2", Name: "User 2"},
-		{ID: "user3", Name: "User 3"},
+	for _, user := range []*userv1beta1.User{
+		{
+			Id:       "user1",
+			FullName: "User 1",
+		},
+		{
+			Id:       "user2",
+			FullName: "User 2",
+		},
+		{
+			Id:       "user3",
+			FullName: "User 3",
+		},
 	} {
 		if _, err := inMemoryStorage.UpdateUser(ctx, user); err != nil {
 			return nil, fmt.Errorf("init in-memory storage: %w", err)
