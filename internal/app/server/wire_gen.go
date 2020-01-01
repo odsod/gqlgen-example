@@ -47,8 +47,9 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 		Logger:  logger,
 	}
 	serveMux := InitHTTPServeMux(cfg, logger, executableSchema, dataloader)
-	server := InitHTTPServer(cfg, serveMux)
-	grpcServer := InitGRPCServer()
+	server := InitHTTPServer(serveMux)
+	service := InitUserService()
+	grpcServer := InitGRPCServer(service)
 	app := &App{
 		Config:     cfg,
 		HTTPServer: server,

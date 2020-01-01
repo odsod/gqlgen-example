@@ -13,10 +13,12 @@ import (
 	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
 	"github.com/odsod/gqlgen-example/internal/middleware"
 	"github.com/odsod/gqlgen-example/internal/resolver"
+	"github.com/odsod/gqlgen-example/internal/service/user"
 	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func InitInMemoryStorage(
@@ -78,8 +80,17 @@ func InitInMemoryStorage(
 	return inMemoryStorage, nil
 }
 
-func InitGRPCServer() *grpc.Server {
-	return grpc.NewServer()
+func InitUserService() *user.Service {
+	return &user.Service{}
+}
+
+func InitGRPCServer(
+	userService *user.Service,
+) *grpc.Server {
+	s := grpc.NewServer()
+	userv1beta1.RegisterUserServiceServer(s, userService)
+	reflection.Register(s)
+	return s
 }
 
 func InitExecutableSchema(
@@ -117,11 +128,9 @@ func InitHTTPServeMux(
 }
 
 func InitHTTPServer(
-	c *Config,
 	httpServeMux *http.ServeMux,
 ) *http.Server {
 	return &http.Server{
-		Addr:    fmt.Sprintf(":%d", c.HTTPServer.Port),
 		Handler: httpServeMux,
 	}
 }
