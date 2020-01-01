@@ -21,6 +21,7 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 			InitInMemoryStorage,
 			InitGRPCServer,
 			InitUserService,
+			InitUserServiceClient,
 			wire.Struct(new(resolver.Root), "*"),
 			wire.Struct(new(resolver.Query), "*"),
 			wire.Struct(new(resolver.Mutation), "*"),

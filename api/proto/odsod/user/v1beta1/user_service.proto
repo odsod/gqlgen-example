@@ -48,6 +48,12 @@ message ListUsersResponse {
   string next_page_token = 2;
 }
 
+// Page token for the list users endpoint.
+message ListUsersPageToken {
+  // Current offset in the total users.
+  int32 offset = 1;
+}
+
 // Get user request.
 message GetUserRequest {
   // The ID of the user to get.

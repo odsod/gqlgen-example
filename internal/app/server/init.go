@@ -51,7 +51,15 @@ func InitInMemoryStorage(
 			return nil, fmt.Errorf("init in-memory storage: %w", err)
 		}
 	}
-	for _, user := range []*userv1beta1.User{
+	return inMemoryStorage, nil
+}
+
+func InitUserService(
+	ctx context.Context,
+	logger *zap.Logger,
+) (*user.Service, error) {
+	s := user.NewService(logger)
+	for _, u := range []*userv1beta1.User{
 		{
 			Id:          "user1",
 			DisplayName: "User 1",
@@ -73,15 +81,14 @@ func InitInMemoryStorage(
 			DeleteTime:  ptypes.TimestampNow(),
 		},
 	} {
-		if _, err := inMemoryStorage.UpdateUser(ctx, user); err != nil {
+		if _, err := s.CreateUser(ctx, &userv1beta1.CreateUserRequest{
+			UserId: u.Id,
+			User:   u,
+		}); err != nil {
 			return nil, fmt.Errorf("init in-memory storage: %w", err)
 		}
 	}
-	return inMemoryStorage, nil
-}
-
-func InitUserService() *user.Service {
-	return &user.Service{}
+	return s, nil
 }
 
 func InitGRPCServer(
@@ -133,6 +140,24 @@ func InitHTTPServer(
 	return &http.Server{
 		Handler: httpServeMux,
 	}
+}
+
+func InitUserServiceClient(
+	ctx context.Context,
+	c *Config,
+	logger *zap.Logger,
+) (userv1beta1.UserServiceClient, func(), error) {
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("localhost:%d", c.GRPCServer.Port), grpc.WithInsecure())
+	if err != nil {
+		return nil, nil, fmt.Errorf("init user service client: %w", err)
+	}
+	cleanup := func() {
+		logger.Info("closing user service connection")
+		if err := conn.Close(); err != nil {
+			logger.Error("close user service connection", zap.Error(err))
+		}
+	}
+	return userv1beta1.NewUserServiceClient(conn), cleanup, nil
 }
 
 func InitLogger(

@@ -22,8 +22,9 @@ func UserLoaderFromContext(ctx context.Context) (*dataloader.UserLoader, bool) {
 }
 
 type Dataloader struct {
-	Storage *storage.InMemory
-	Logger  *zap.Logger
+	Storage           *storage.InMemory
+	UserServiceClient userv1beta1.UserServiceClient
+	Logger            *zap.Logger
 }
 
 func makeIndexMap(elements []string) map[string]int {
@@ -38,7 +39,9 @@ func (m *Dataloader) FetchUsers(ctx context.Context, ids []string) ([]*userv1bet
 	m.Logger.Debug("fetch users", zap.Strings("ids", ids))
 	users := make([]*userv1beta1.User, len(ids))
 	errs := make([]error, len(ids))
-	foundUsers, missingIDs, err := m.Storage.BatchGetUsers(ctx, ids)
+	response, err := m.UserServiceClient.BatchGetUsers(ctx, &userv1beta1.BatchGetUsersRequest{
+		Ids: ids,
+	})
 	if err != nil {
 		for i := range errs {
 			errs[i] = err
@@ -46,10 +49,10 @@ func (m *Dataloader) FetchUsers(ctx context.Context, ids []string) ([]*userv1bet
 		return nil, errs
 	}
 	idToIndexMap := makeIndexMap(ids)
-	for _, user := range foundUsers {
+	for _, user := range response.FoundUsers {
 		users[idToIndexMap[user.Id]] = user
 	}
-	for _, missingID := range missingIDs {
+	for _, missingID := range response.MissingIds {
 		errs[idToIndexMap[missingID]] = fmt.Errorf("not found: %s", missingID)
 	}
 	return users, errs

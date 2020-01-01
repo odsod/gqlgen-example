@@ -42,13 +42,24 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 		TodoResolver:     todo,
 	}
 	executableSchema := InitExecutableSchema(root)
+	userServiceClient, cleanup2, err := InitUserServiceClient(ctx, cfg, logger)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
 	dataloader := &middleware.Dataloader{
-		Storage: inMemory,
-		Logger:  logger,
+		Storage:           inMemory,
+		UserServiceClient: userServiceClient,
+		Logger:            logger,
 	}
 	serveMux := InitHTTPServeMux(cfg, logger, executableSchema, dataloader)
 	server := InitHTTPServer(serveMux)
-	service := InitUserService()
+	service, err := InitUserService(ctx, logger)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	grpcServer := InitGRPCServer(service)
 	app := &App{
 		Config:     cfg,
@@ -57,6 +68,7 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 		Logger:     logger,
 	}
 	return app, func() {
+		cleanup2()
 		cleanup()
 	}, nil
 }
