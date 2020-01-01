@@ -64,7 +64,7 @@ build/gqlgen-generate: $(gqlgen) gqlgen.yml $(graphql_files) $(model_files)
 .PHONY: wire-generate
 wire-generate: $(shell find . -type f -name 'wire.go' | sed 's/wire.go/wire_gen.go/')
 
-%wire_gen.go: $(wire) $(shell find . -type f -not -name 'wire_gen.go')
+%wire_gen.go: $(wire) $(shell find . -type f -name '*.go' -and -not -name 'wire_gen.go')
 	$(wire) gen ./$(dir $@)
 
 .PHONY: go-mod-tidy
