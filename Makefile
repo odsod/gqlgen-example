@@ -27,7 +27,6 @@ buf-check-lint: $(buf)
 
 proto_files := $(shell find api/proto -type f -name '*.proto')
 
-build/proto.bin: proto_files := $(shell find api/proto -type f -name '*.proto')
 build/proto.bin: $(buf) $(proto_files)
 	mkdir -p $(dir $@)
 	$(buf) image build -o $@
