@@ -18,6 +18,7 @@ clean:
 include tools/buf/rules.mk
 include tools/dataloaden/rules.mk
 include tools/golangci-lint/rules.mk
+include tools/grpcurl/rules.mk
 include tools/gqlgen/rules.mk
 include tools/protoc/rules.mk
 include tools/protoc-gen-go/rules.mk
@@ -80,3 +81,7 @@ go-mod-tidy:
 .PHONY: go-lint
 go-lint: $(golangci_lint)
 	$(golangci_lint) run
+
+.PHONY: grpcurl-list
+grpcurl-list: $(grpcurl)
+	$(grpcurl) -plaintext localhost:8081 list
