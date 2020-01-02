@@ -18,49 +18,56 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	inMemory, err := InitInMemoryStorage(ctx)
+	todoServiceClient, cleanup2, err := InitTodoServiceClient(ctx, cfg, logger)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
 	mutation := &resolver.Mutation{
-		Storage: inMemory,
-		Logger:  logger,
+		TodoServiceClient: todoServiceClient,
+		Logger:            logger,
 	}
 	query := &resolver.Query{
-		Storage: inMemory,
-		Logger:  logger,
+		TodoServiceClient: todoServiceClient,
+		Logger:            logger,
 	}
 	todo := &resolver.Todo{
 		Logger: logger,
 	}
 	root := &resolver.Root{
-		Storage:          inMemory,
 		Logger:           logger,
 		MutationResolver: mutation,
 		QueryResolver:    query,
 		TodoResolver:     todo,
 	}
 	executableSchema := InitExecutableSchema(root)
-	userServiceClient, cleanup2, err := InitUserServiceClient(ctx, cfg, logger)
-	if err != nil {
-		cleanup()
-		return nil, nil, err
-	}
-	dataloader := &middleware.Dataloader{
-		Storage:           inMemory,
-		UserServiceClient: userServiceClient,
-		Logger:            logger,
-	}
-	serveMux := InitHTTPServeMux(cfg, logger, executableSchema, dataloader)
-	server := InitHTTPServer(serveMux)
-	service, err := InitUserService(ctx, logger)
+	userServiceClient, cleanup3, err := InitUserServiceClient(ctx, cfg, logger)
 	if err != nil {
 		cleanup2()
 		cleanup()
 		return nil, nil, err
 	}
-	grpcServer := InitGRPCServer(service)
+	dataloader := &middleware.Dataloader{
+		UserServiceClient: userServiceClient,
+		Logger:            logger,
+	}
+	serveMux := InitHTTPServeMux(cfg, logger, executableSchema, dataloader)
+	server := InitHTTPServer(serveMux)
+	userServiceServer, err := InitUserServiceServer(ctx, logger)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	todoServiceServer, err := InitTodoServiceServer(ctx, logger)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	grpcServer := InitGRPCServer(userServiceServer, todoServiceServer)
 	app := &App{
 		Config:     cfg,
 		HTTPServer: server,
@@ -68,6 +75,7 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 		Logger:     logger,
 	}
 	return app, func() {
+		cleanup3()
 		cleanup2()
 		cleanup()
 	}, nil

@@ -10,17 +10,37 @@ option go_package = "todov1beta1";
 option objc_class_prefix = "TODO";
 option php_namespace = "Odsod\\Todo\\V1beta1";
 
+import "google/protobuf/timestamp.proto";
+
 // A todo resource.
 message Todo {
   // Resource name of the todo.
   // For example: "todos/1234"
   string id = 1;
+
+  // Indicates if the todo is deleted.
+  bool deleted = 2;
+
+  // The creation timestamp of the todo.
+  google.protobuf.Timestamp create_time = 3;
+
+  // The last update timestamp of the todo.
+  //
+  // Note: update_time is updated when create/update/delete operation is
+  // performed.
+  google.protobuf.Timestamp update_time = 4;
+
+  // The deletion timestamp of the todo.
+  google.protobuf.Timestamp delete_time = 5;
+
   // The text context of the todo.
   // For example: "Do chores."
-  string text = 2;
+  string text = 6;
+
   // Flag for marking the todo as done.
-  bool done = 3;
+  bool done = 7;
+
   // Resource name of the owner of the todo.
   // For example: "users/1234"
-  string user_id = 4;
+  string user_id = 8;
 }

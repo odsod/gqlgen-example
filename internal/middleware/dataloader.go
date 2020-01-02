@@ -8,7 +8,6 @@ import (
 
 	"github.com/odsod/gqlgen-example/internal/gen/dataloader"
 	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
-	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 )
 
@@ -22,7 +21,6 @@ func UserLoaderFromContext(ctx context.Context) (*dataloader.UserLoader, bool) {
 }
 
 type Dataloader struct {
-	Storage           *storage.InMemory
 	UserServiceClient userv1beta1.UserServiceClient
 	Logger            *zap.Logger
 }

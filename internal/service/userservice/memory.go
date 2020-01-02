@@ -1,4 +1,4 @@
-package user
+package userservice
 
 import (
 	"context"
@@ -15,21 +15,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Service struct {
+type Memory struct {
 	logger *zap.Logger
 	mu     sync.Mutex
 	users  []*userv1beta1.User
 }
 
-var _ userv1beta1.UserServiceServer = &Service{}
+var _ userv1beta1.UserServiceServer = &Memory{}
 
-func NewService(logger *zap.Logger) *Service {
-	return &Service{
+func NewMemory(logger *zap.Logger) *Memory {
+	return &Memory{
 		logger: logger,
 	}
 }
 
-func (s *Service) ListUsers(
+func (s *Memory) ListUsers(
 	_ context.Context,
 	r *userv1beta1.ListUsersRequest,
 ) (*userv1beta1.ListUsersResponse, error) {
@@ -70,7 +70,7 @@ func (s *Service) ListUsers(
 	return res, nil
 }
 
-func (s *Service) GetUser(
+func (s *Memory) GetUser(
 	_ context.Context,
 	r *userv1beta1.GetUserRequest,
 ) (*userv1beta1.GetUserResponse, error) {
@@ -86,7 +86,7 @@ func (s *Service) GetUser(
 	return res, nil
 }
 
-func (s *Service) BatchGetUsers(
+func (s *Memory) BatchGetUsers(
 	_ context.Context,
 	r *userv1beta1.BatchGetUsersRequest,
 ) (*userv1beta1.BatchGetUsersResponse, error) {
@@ -105,7 +105,7 @@ func (s *Service) BatchGetUsers(
 	return res, nil
 }
 
-func (s *Service) CreateUser(
+func (s *Memory) CreateUser(
 	_ context.Context,
 	r *userv1beta1.CreateUserRequest,
 ) (*userv1beta1.CreateUserResponse, error) {
@@ -117,6 +117,8 @@ func (s *Service) CreateUser(
 	} else {
 		newUser.Id = uuid.New().String()
 	}
+	newUser.CreateTime = ptypes.TimestampNow()
+	newUser.UpdateTime = newUser.CreateTime
 	if _, _, ok := s.getUser(newUser.Id); ok {
 		return nil, status.Error(codes.AlreadyExists, "user already exists")
 	}
@@ -127,7 +129,7 @@ func (s *Service) CreateUser(
 	return res, nil
 }
 
-func (s *Service) UpdateUser(
+func (s *Memory) UpdateUser(
 	_ context.Context,
 	r *userv1beta1.UpdateUserRequest,
 ) (*userv1beta1.UpdateUserResponse, error) {
@@ -140,14 +142,16 @@ func (s *Service) UpdateUser(
 	if !ok {
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
-	s.users[i] = proto.Clone(r.User).(*userv1beta1.User)
+	updatedUser := proto.Clone(r.User).(*userv1beta1.User)
+	updatedUser.UpdateTime = ptypes.TimestampNow()
+	s.users[i] = updatedUser
 	res := &userv1beta1.UpdateUserResponse{
-		User: proto.Clone(s.users[i]).(*userv1beta1.User),
+		User: proto.Clone(updatedUser).(*userv1beta1.User),
 	}
 	return res, nil
 }
 
-func (s *Service) DeleteUser(
+func (s *Memory) DeleteUser(
 	_ context.Context,
 	r *userv1beta1.DeleteUserRequest,
 ) (*userv1beta1.DeleteUserResponse, error) {
@@ -162,13 +166,14 @@ func (s *Service) DeleteUser(
 	}
 	u.Deleted = true
 	u.DeleteTime = ptypes.TimestampNow()
+	u.UpdateTime = ptypes.TimestampNow()
 	res := &userv1beta1.DeleteUserResponse{
 		User: proto.Clone(u).(*userv1beta1.User),
 	}
 	return res, nil
 }
 
-func (s *Service) UndeleteUser(
+func (s *Memory) UndeleteUser(
 	_ context.Context,
 	r *userv1beta1.UndeleteUserRequest,
 ) (*userv1beta1.UndeleteUserResponse, error) {
@@ -183,13 +188,14 @@ func (s *Service) UndeleteUser(
 	}
 	u.Deleted = false
 	u.DeleteTime = nil
+	u.UpdateTime = ptypes.TimestampNow()
 	res := &userv1beta1.UndeleteUserResponse{
 		User: proto.Clone(u).(*userv1beta1.User),
 	}
 	return res, nil
 }
 
-func (s *Service) getUser(id string) (*userv1beta1.User, int, bool) {
+func (s *Memory) getUser(id string) (*userv1beta1.User, int, bool) {
 	for i, u := range s.users {
 		if u.Id == id {
 			return u, i, true

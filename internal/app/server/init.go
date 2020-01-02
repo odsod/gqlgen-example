@@ -7,24 +7,24 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/handler"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/odsod/gqlgen-example/internal/gen/graph"
 	todov1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1"
 	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
 	"github.com/odsod/gqlgen-example/internal/middleware"
 	"github.com/odsod/gqlgen-example/internal/resolver"
-	"github.com/odsod/gqlgen-example/internal/service/user"
-	"github.com/odsod/gqlgen-example/internal/storage"
+	"github.com/odsod/gqlgen-example/internal/service/todoservice"
+	"github.com/odsod/gqlgen-example/internal/service/userservice"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-func InitInMemoryStorage(
+func InitTodoServiceServer(
 	ctx context.Context,
-) (*storage.InMemory, error) {
-	inMemoryStorage := storage.NewInMemory()
+	logger *zap.Logger,
+) (todov1beta1.TodoServiceServer, error) {
+	s := todoservice.NewMemory(logger)
 	for _, todo := range []*todov1beta1.Todo{
 		{
 			Id:     "todo1",
@@ -47,55 +47,57 @@ func InitInMemoryStorage(
 			Text:   "Todo 4",
 		},
 	} {
-		if _, err := inMemoryStorage.UpdateTodo(ctx, todo); err != nil {
-			return nil, fmt.Errorf("init in-memory storage: %w", err)
+		if _, err := s.CreateTodo(ctx, &todov1beta1.CreateTodoRequest{
+			TodoId: todo.Id,
+			Todo:   todo,
+		}); err != nil {
+			return nil, fmt.Errorf("init todo service server: %w", err)
 		}
 	}
-	return inMemoryStorage, nil
+	return s, nil
 }
 
-func InitUserService(
+func InitUserServiceServer(
 	ctx context.Context,
 	logger *zap.Logger,
-) (*user.Service, error) {
-	s := user.NewService(logger)
+) (userv1beta1.UserServiceServer, error) {
+	s := userservice.NewMemory(logger)
 	for _, u := range []*userv1beta1.User{
 		{
 			Id:          "user1",
 			DisplayName: "User 1",
-			CreateTime:  ptypes.TimestampNow(),
-			UpdateTime:  ptypes.TimestampNow(),
 		},
 		{
 			Id:          "user2",
 			DisplayName: "User 2",
-			CreateTime:  ptypes.TimestampNow(),
-			UpdateTime:  ptypes.TimestampNow(),
 		},
 		{
 			Id:          "user3",
 			DisplayName: "User 3",
-			Deleted:     true,
-			CreateTime:  ptypes.TimestampNow(),
-			UpdateTime:  ptypes.TimestampNow(),
-			DeleteTime:  ptypes.TimestampNow(),
 		},
 	} {
 		if _, err := s.CreateUser(ctx, &userv1beta1.CreateUserRequest{
 			UserId: u.Id,
 			User:   u,
 		}); err != nil {
-			return nil, fmt.Errorf("init in-memory storage: %w", err)
+			return nil, fmt.Errorf("init user service server: %w", err)
 		}
+	}
+	if _, err := s.DeleteUser(ctx, &userv1beta1.DeleteUserRequest{
+		Id: "user3",
+	}); err != nil {
+		return nil, fmt.Errorf("init user service server: %w", err)
 	}
 	return s, nil
 }
 
 func InitGRPCServer(
-	userService *user.Service,
+	userServiceServer userv1beta1.UserServiceServer,
+	todoServiceServer todov1beta1.TodoServiceServer,
 ) *grpc.Server {
 	s := grpc.NewServer()
-	userv1beta1.RegisterUserServiceServer(s, userService)
+	userv1beta1.RegisterUserServiceServer(s, userServiceServer)
+	todov1beta1.RegisterTodoServiceServer(s, todoServiceServer)
 	reflection.Register(s)
 	return s
 }
@@ -158,6 +160,24 @@ func InitUserServiceClient(
 		}
 	}
 	return userv1beta1.NewUserServiceClient(conn), cleanup, nil
+}
+
+func InitTodoServiceClient(
+	ctx context.Context,
+	c *Config,
+	logger *zap.Logger,
+) (todov1beta1.TodoServiceClient, func(), error) {
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("localhost:%d", c.GRPCServer.Port), grpc.WithInsecure())
+	if err != nil {
+		return nil, nil, fmt.Errorf("init todo service client: %w", err)
+	}
+	cleanup := func() {
+		logger.Info("closing todo service connection")
+		if err := conn.Close(); err != nil {
+			logger.Error("close todo service connection", zap.Error(err))
+		}
+	}
+	return todov1beta1.NewTodoServiceClient(conn), cleanup, nil
 }
 
 func InitLogger(

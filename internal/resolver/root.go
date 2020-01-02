@@ -2,12 +2,10 @@ package resolver
 
 import (
 	"github.com/odsod/gqlgen-example/internal/gen/graph"
-	"github.com/odsod/gqlgen-example/internal/storage"
 	"go.uber.org/zap"
 )
 
 type Root struct {
-	Storage          *storage.InMemory
 	Logger           *zap.Logger
 	MutationResolver *Mutation
 	QueryResolver    *Query

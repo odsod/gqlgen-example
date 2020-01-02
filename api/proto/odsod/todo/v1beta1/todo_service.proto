@@ -10,32 +10,150 @@ option go_package = "todov1beta1";
 option objc_class_prefix = "TODO";
 option php_namespace = "Odsod\\Todo\\V1beta1";
 
+import "google/protobuf/field_mask.proto";
 import "odsod/todo/v1beta1/todo.proto";
 
 // Manages todos.
 service TodoService {
-  // Lists todos.
+  // List todos.
   rpc ListTodos(ListTodosRequest) returns (ListTodosResponse);
+
   // Get a todo.
   rpc GetTodo(GetTodoRequest) returns (GetTodoResponse);
+
+  // Get a batch of todos.
+  rpc BatchGetTodos(BatchGetTodosRequest) returns (BatchGetTodosResponse);
+
+  // Create a todo.
+  rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse);
+
+  // Update a todo.
+  rpc UpdateTodo(UpdateTodoRequest) returns (UpdateTodoResponse);
+
+  // Delete a todo.
+  rpc DeleteTodo(DeleteTodoRequest) returns (DeleteTodoResponse);
+
+  // Unedelete a todo.
+  rpc UndeleteTodo(UndeleteTodoRequest) returns (UndeleteTodoResponse);
 }
 
 // List todos request.
 message ListTodosRequest {
+  // The maximum number of items to return.
+  int32 page_size = 1;
+
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 2;
+
+  // Flag for including deleted resources.
+  bool show_deleted = 3;
 }
 
 // List todos response.
 message ListTodosResponse {
+  // The returned todos.
+  repeated odsod.todo.v1beta1.Todo todos = 1;
+
+  // Token to retrieve the next page of results, or empty if there are no
+  // more results in the list.
+  string next_page_token = 2;
+
+  // The total number of todos in the list.
+  int32 total_size = 3;
+}
+
+// Page token for the list todos endpoint.
+message ListTodosPageToken {
+  // Current offset in the total todos.
+  int32 offset = 1;
 }
 
 // Get todo request.
 message GetTodoRequest {
-  // The ID of the todo.
+  // The ID of the todo to get.
   string id = 1;
 }
 
 // Get todo response.
 message GetTodoResponse {
   // The returned todo.
+  odsod.todo.v1beta1.Todo todo = 1;
+}
+
+// Batch get todos request.
+message BatchGetTodosRequest {
+  // The IDs of the todos to get.
+  repeated string ids = 1;
+}
+
+// Batch get todos response.
+message BatchGetTodosResponse {
+  // The found todos.
+  //
+  // The order of results in this field is undefined and has no relation to the
+  // order of the keys in the input.
+  repeated odsod.todo.v1beta1.Todo found_todos = 1;
+
+  // The missing IDs.
+  //
+  // The order of results in this field is undefined and has no relation to the
+  // order of the keys in the input.
+  repeated string missing_ids = 2;
+}
+
+// Create todo request.
+message CreateTodoRequest {
+  // The todo id to use for this todo.
+  string todo_id = 1;
+
+  // The todo resource to create.
+  odsod.todo.v1beta1.Todo todo = 2;
+}
+
+// Create todo response.
+message CreateTodoResponse {
+  // The created todo.
+  odsod.todo.v1beta1.Todo todo = 1;
+}
+
+// Update todo request.
+message UpdateTodoRequest {
+  // The todo resource which replaces the current todo resource.
+  odsod.todo.v1beta1.Todo todo = 1;
+
+  // The update mask applies to the resource.
+  //
+  // For the `FieldMask` definition, see:
+  // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+// Update todo response.
+message UpdateTodoResponse {
+  // The updated todo.
+  odsod.todo.v1beta1.Todo todo = 1;
+}
+
+// Delete todo request.
+message DeleteTodoRequest {
+  // The ID of the todo to mark for deletion.
+  string id = 1;
+}
+
+// Delete todo response.
+message DeleteTodoResponse {
+  // The todo marked for deletion.
+  odsod.todo.v1beta1.Todo todo = 1;
+}
+
+// Undelete todo request.
+message UndeleteTodoRequest {
+  // The ID of the todo undelete.
+  string id = 1;
+}
+
+// Undelete todo response.
+message UndeleteTodoResponse {
+  // The undeleted todo.
   odsod.todo.v1beta1.Todo todo = 1;
 }
