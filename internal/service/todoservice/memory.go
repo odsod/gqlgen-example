@@ -76,12 +76,12 @@ func (s *Memory) GetTodo(
 ) (*todov1beta1.GetTodoResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	u, _, ok := s.getTodo(r.Id)
+	todo, _, ok := s.getTodoByName(r.Name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "todo not found")
 	}
 	res := &todov1beta1.GetTodoResponse{
-		Todo: proto.Clone(u).(*todov1beta1.Todo),
+		Todo: proto.Clone(todo).(*todov1beta1.Todo),
 	}
 	return res, nil
 }
@@ -93,13 +93,13 @@ func (s *Memory) BatchGetTodos(
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	res := &todov1beta1.BatchGetTodosResponse{
-		FoundTodos: make([]*todov1beta1.Todo, 0, len(r.Ids)),
+		FoundTodos: make([]*todov1beta1.Todo, 0, len(r.Names)),
 	}
-	for _, id := range r.Ids {
-		if todo, _, ok := s.getTodo(id); ok {
+	for _, name := range r.Names {
+		if todo, _, ok := s.getTodoByName(name); ok {
 			res.FoundTodos = append(res.FoundTodos, proto.Clone(todo).(*todov1beta1.Todo))
 		} else {
-			res.MissingIds = append(res.MissingIds, id)
+			res.MissingNames = append(res.MissingNames, name)
 		}
 	}
 	return res, nil
@@ -112,16 +112,19 @@ func (s *Memory) CreateTodo(
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	newTodo := proto.Clone(r.Todo).(*todov1beta1.Todo)
+	var name TodoResourceName
 	if r.TodoId != "" {
-		newTodo.Id = r.TodoId
+		name.ID = r.TodoId
 	} else {
-		newTodo.Id = uuid.New().String()
+		name.ID = uuid.New().String()
+	}
+	newTodo.Name = name.String()
+	if _, _, ok := s.getTodoByName(newTodo.Name); ok {
+		s.logger.Error("new todo already exists", zap.String("name", newTodo.Name))
+		return nil, status.Error(codes.AlreadyExists, "todo already exists")
 	}
 	newTodo.CreateTime = ptypes.TimestampNow()
 	newTodo.UpdateTime = newTodo.CreateTime
-	if _, _, ok := s.getTodo(newTodo.Id); ok {
-		return nil, status.Error(codes.AlreadyExists, "todo already exists")
-	}
 	s.todos = append(s.todos, newTodo)
 	res := &todov1beta1.CreateTodoResponse{
 		Todo: proto.Clone(newTodo).(*todov1beta1.Todo),
@@ -138,7 +141,7 @@ func (s *Memory) UpdateTodo(
 	if len(r.UpdateMask.Paths) > 0 {
 		return nil, status.Error(codes.Unimplemented, "field mask support not yet implemented")
 	}
-	_, i, ok := s.getTodo(r.Todo.Id)
+	_, i, ok := s.getTodoByName(r.Todo.Name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "todo not found")
 	}
@@ -157,18 +160,18 @@ func (s *Memory) DeleteTodo(
 ) (*todov1beta1.DeleteTodoResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	u, _, ok := s.getTodo(r.Id)
+	todo, _, ok := s.getTodoByName(r.Name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "todo not found")
 	}
-	if u.Deleted {
+	if todo.Deleted {
 		return nil, status.Error(codes.FailedPrecondition, "todo already deleted")
 	}
-	u.Deleted = true
-	u.DeleteTime = ptypes.TimestampNow()
-	u.UpdateTime = ptypes.TimestampNow()
+	todo.Deleted = true
+	todo.DeleteTime = ptypes.TimestampNow()
+	todo.UpdateTime = ptypes.TimestampNow()
 	res := &todov1beta1.DeleteTodoResponse{
-		Todo: proto.Clone(u).(*todov1beta1.Todo),
+		Todo: proto.Clone(todo).(*todov1beta1.Todo),
 	}
 	return res, nil
 }
@@ -179,26 +182,26 @@ func (s *Memory) UndeleteTodo(
 ) (*todov1beta1.UndeleteTodoResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	u, _, ok := s.getTodo(r.Id)
+	todo, _, ok := s.getTodoByName(r.Name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "todo not found")
 	}
-	if !u.Deleted {
+	if !todo.Deleted {
 		return nil, status.Error(codes.FailedPrecondition, "todo not already deleted")
 	}
-	u.Deleted = false
-	u.DeleteTime = nil
-	u.UpdateTime = ptypes.TimestampNow()
+	todo.Deleted = false
+	todo.DeleteTime = nil
+	todo.UpdateTime = ptypes.TimestampNow()
 	res := &todov1beta1.UndeleteTodoResponse{
-		Todo: proto.Clone(u).(*todov1beta1.Todo),
+		Todo: proto.Clone(todo).(*todov1beta1.Todo),
 	}
 	return res, nil
 }
 
-func (s *Memory) getTodo(id string) (*todov1beta1.Todo, int, bool) {
-	for i, u := range s.todos {
-		if u.Id == id {
-			return u, i, true
+func (s *Memory) getTodoByName(name string) (*todov1beta1.Todo, int, bool) {
+	for i, todo := range s.todos {
+		if todo.Name == name {
+			return todo, i, true
 		}
 	}
 	return nil, 0, false

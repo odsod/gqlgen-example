@@ -16,7 +16,7 @@ import "google/protobuf/timestamp.proto";
 message Todo {
   // Resource name of the todo.
   // For example: "todos/1234"
-  string id = 1;
+  string name = 1;
 
   // Indicates if the todo is deleted.
   bool deleted = 2;
@@ -42,5 +42,5 @@ message Todo {
 
   // Resource name of the owner of the todo.
   // For example: "users/1234"
-  string user_id = 8;
+  string user_name = 8;
 }

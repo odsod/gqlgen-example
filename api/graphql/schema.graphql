@@ -5,19 +5,23 @@
 scalar Timestamp
 
 type Todo {
-  id: ID!
+  name: ID!
+  deleted: Boolean!
+  createTime: Timestamp!
+  updateTime: Timestamp!
+  deleteTime: Timestamp
   text: String!
   done: Boolean!
   user: User!
 }
 
 type User {
-  id: ID!
-  displayName: String!
+  name: ID!
   deleted: Boolean!
   createTime: Timestamp!
   updateTime: Timestamp!
   deleteTime: Timestamp
+  displayName: String!
 }
 
 type Query {
@@ -26,7 +30,7 @@ type Query {
 
 input NewTodo {
   text: String!
-  userId: String!
+  userName: String!
 }
 
 type Mutation {

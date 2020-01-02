@@ -18,8 +18,8 @@ func (r *Mutation) CreateTodo(ctx context.Context, newTodo model.NewTodo) (*todo
 	r.Logger.Debug("create todo", zap.Any("newTodo", newTodo))
 	res, err := r.TodoServiceClient.CreateTodo(ctx, &todov1beta1.CreateTodoRequest{
 		Todo: &todov1beta1.Todo{
-			Text:   newTodo.Text,
-			UserId: newTodo.UserID,
+			Text:     newTodo.Text,
+			UserName: newTodo.UserName,
 		},
 	})
 	if err != nil {

@@ -70,8 +70,9 @@ message ListTodosPageToken {
 
 // Get todo request.
 message GetTodoRequest {
-  // The ID of the todo to get.
-  string id = 1;
+  // The resource name of the todo to get.
+  // Example: "todos/1234"
+  string name = 1;
 }
 
 // Get todo response.
@@ -82,8 +83,8 @@ message GetTodoResponse {
 
 // Batch get todos request.
 message BatchGetTodosRequest {
-  // The IDs of the todos to get.
-  repeated string ids = 1;
+  // The resource names of the todos to get.
+  repeated string names = 1;
 }
 
 // Batch get todos response.
@@ -94,11 +95,11 @@ message BatchGetTodosResponse {
   // order of the keys in the input.
   repeated odsod.todo.v1beta1.Todo found_todos = 1;
 
-  // The missing IDs.
+  // The missing resource names.
   //
   // The order of results in this field is undefined and has no relation to the
   // order of the keys in the input.
-  repeated string missing_ids = 2;
+  repeated string missing_names = 2;
 }
 
 // Create todo request.
@@ -136,8 +137,9 @@ message UpdateTodoResponse {
 
 // Delete todo request.
 message DeleteTodoRequest {
-  // The ID of the todo to mark for deletion.
-  string id = 1;
+  // The resource name of the todo to mark for deletion.
+  // For example: "todos/1234"
+  string name = 1;
 }
 
 // Delete todo response.
@@ -148,8 +150,9 @@ message DeleteTodoResponse {
 
 // Undelete todo request.
 message UndeleteTodoRequest {
-  // The ID of the todo undelete.
-  string id = 1;
+  // The resource name of the todo to undelete.
+  // For example: "todos/1234"
+  string name = 1;
 }
 
 // Undelete todo response.

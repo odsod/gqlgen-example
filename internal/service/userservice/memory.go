@@ -76,12 +76,12 @@ func (s *Memory) GetUser(
 ) (*userv1beta1.GetUserResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	u, _, ok := s.getUser(r.Id)
+	user, _, ok := s.getUserByName(r.Name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
 	res := &userv1beta1.GetUserResponse{
-		User: proto.Clone(u).(*userv1beta1.User),
+		User: proto.Clone(user).(*userv1beta1.User),
 	}
 	return res, nil
 }
@@ -93,13 +93,13 @@ func (s *Memory) BatchGetUsers(
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	res := &userv1beta1.BatchGetUsersResponse{
-		FoundUsers: make([]*userv1beta1.User, 0, len(r.Ids)),
+		FoundUsers: make([]*userv1beta1.User, 0, len(r.Names)),
 	}
-	for _, id := range r.Ids {
-		if user, _, ok := s.getUser(id); ok {
+	for _, name := range r.Names {
+		if user, _, ok := s.getUserByName(name); ok {
 			res.FoundUsers = append(res.FoundUsers, proto.Clone(user).(*userv1beta1.User))
 		} else {
-			res.MissingIds = append(res.MissingIds, id)
+			res.MissingNames = append(res.MissingNames, name)
 		}
 	}
 	return res, nil
@@ -112,16 +112,19 @@ func (s *Memory) CreateUser(
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	newUser := proto.Clone(r.User).(*userv1beta1.User)
+	var name UserResourceName
 	if r.UserId != "" {
-		newUser.Id = r.UserId
+		name.ID = r.UserId
 	} else {
-		newUser.Id = uuid.New().String()
+		name.ID = uuid.New().String()
+	}
+	newUser.Name = name.String()
+	if _, _, ok := s.getUserByName(newUser.Name); ok {
+		s.logger.Error("new user already exists", zap.String("name", newUser.Name))
+		return nil, status.Error(codes.AlreadyExists, "user already exists")
 	}
 	newUser.CreateTime = ptypes.TimestampNow()
 	newUser.UpdateTime = newUser.CreateTime
-	if _, _, ok := s.getUser(newUser.Id); ok {
-		return nil, status.Error(codes.AlreadyExists, "user already exists")
-	}
 	s.users = append(s.users, newUser)
 	res := &userv1beta1.CreateUserResponse{
 		User: proto.Clone(newUser).(*userv1beta1.User),
@@ -138,7 +141,7 @@ func (s *Memory) UpdateUser(
 	if len(r.UpdateMask.Paths) > 0 {
 		return nil, status.Error(codes.Unimplemented, "field mask support not yet implemented")
 	}
-	_, i, ok := s.getUser(r.User.Id)
+	_, i, ok := s.getUserByName(r.User.Name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
@@ -157,18 +160,18 @@ func (s *Memory) DeleteUser(
 ) (*userv1beta1.DeleteUserResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	u, _, ok := s.getUser(r.Id)
+	user, _, ok := s.getUserByName(r.Name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
-	if u.Deleted {
+	if user.Deleted {
 		return nil, status.Error(codes.FailedPrecondition, "user already deleted")
 	}
-	u.Deleted = true
-	u.DeleteTime = ptypes.TimestampNow()
-	u.UpdateTime = ptypes.TimestampNow()
+	user.Deleted = true
+	user.DeleteTime = ptypes.TimestampNow()
+	user.UpdateTime = ptypes.TimestampNow()
 	res := &userv1beta1.DeleteUserResponse{
-		User: proto.Clone(u).(*userv1beta1.User),
+		User: proto.Clone(user).(*userv1beta1.User),
 	}
 	return res, nil
 }
@@ -179,25 +182,25 @@ func (s *Memory) UndeleteUser(
 ) (*userv1beta1.UndeleteUserResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	u, _, ok := s.getUser(r.Id)
+	user, _, ok := s.getUserByName(r.Name)
 	if !ok {
 		return nil, status.Error(codes.NotFound, "user not found")
 	}
-	if !u.Deleted {
+	if !user.Deleted {
 		return nil, status.Error(codes.FailedPrecondition, "user not already deleted")
 	}
-	u.Deleted = false
-	u.DeleteTime = nil
-	u.UpdateTime = ptypes.TimestampNow()
+	user.Deleted = false
+	user.DeleteTime = nil
+	user.UpdateTime = ptypes.TimestampNow()
 	res := &userv1beta1.UndeleteUserResponse{
-		User: proto.Clone(u).(*userv1beta1.User),
+		User: proto.Clone(user).(*userv1beta1.User),
 	}
 	return res, nil
 }
 
-func (s *Memory) getUser(id string) (*userv1beta1.User, int, bool) {
+func (s *Memory) getUserByName(name string) (*userv1beta1.User, int, bool) {
 	for i, u := range s.users {
-		if u.Id == id {
+		if u.Name == name {
 			return u, i, true
 		}
 	}

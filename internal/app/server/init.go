@@ -25,31 +25,39 @@ func InitTodoServiceServer(
 	logger *zap.Logger,
 ) (todov1beta1.TodoServiceServer, error) {
 	s := todoservice.NewMemory(logger)
-	for _, todo := range []*todov1beta1.Todo{
+	for _, todo := range []struct {
+		id       string
+		userName string
+		text     string
+	}{
 		{
-			Id:     "todo1",
-			UserId: "user1",
-			Text:   "Todo 1",
+			id:       "todo1",
+			text:     "Todo 1",
+			userName: "users/user1",
 		},
 		{
-			Id:     "todo2",
-			UserId: "user2",
-			Text:   "Todo 2",
+			id:       "todo2",
+			text:     "Todo 2",
+			userName: "users/user2",
 		},
 		{
-			Id:     "todo3",
-			UserId: "user2",
-			Text:   "Todo 3",
+			id:       "todo3",
+			text:     "Todo 3",
+			userName: "users/user2",
 		},
 		{
-			Id:     "todo4",
-			UserId: "user3",
-			Text:   "Todo 4",
+			id:       "todo4",
+			text:     "Todo 4",
+			userName: "users/user3",
 		},
 	} {
+		todo := todo
 		if _, err := s.CreateTodo(ctx, &todov1beta1.CreateTodoRequest{
-			TodoId: todo.Id,
-			Todo:   todo,
+			TodoId: todo.id,
+			Todo: &todov1beta1.Todo{
+				Text:     todo.text,
+				UserName: todo.userName,
+			},
 		}); err != nil {
 			return nil, fmt.Errorf("init todo service server: %w", err)
 		}
@@ -62,29 +70,35 @@ func InitUserServiceServer(
 	logger *zap.Logger,
 ) (userv1beta1.UserServiceServer, error) {
 	s := userservice.NewMemory(logger)
-	for _, u := range []*userv1beta1.User{
+	for _, user := range []struct {
+		id          string
+		displayName string
+	}{
 		{
-			Id:          "user1",
-			DisplayName: "User 1",
+			id:          "user1",
+			displayName: "User 1",
 		},
 		{
-			Id:          "user2",
-			DisplayName: "User 2",
+			id:          "user2",
+			displayName: "User 2",
 		},
 		{
-			Id:          "user3",
-			DisplayName: "User 3",
+			id:          "user3",
+			displayName: "User 3",
 		},
 	} {
+		user := user
 		if _, err := s.CreateUser(ctx, &userv1beta1.CreateUserRequest{
-			UserId: u.Id,
-			User:   u,
+			UserId: user.id,
+			User: &userv1beta1.User{
+				DisplayName: user.displayName,
+			},
 		}); err != nil {
 			return nil, fmt.Errorf("init user service server: %w", err)
 		}
 	}
 	if _, err := s.DeleteUser(ctx, &userv1beta1.DeleteUserRequest{
-		Id: "user3",
+		Name: "users/user3",
 	}); err != nil {
 		return nil, fmt.Errorf("init user service server: %w", err)
 	}

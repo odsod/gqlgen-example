@@ -33,12 +33,12 @@ func makeIndexMap(elements []string) map[string]int {
 	return result
 }
 
-func (m *Dataloader) FetchUsers(ctx context.Context, ids []string) ([]*userv1beta1.User, []error) {
-	m.Logger.Debug("fetch users", zap.Strings("ids", ids))
-	users := make([]*userv1beta1.User, len(ids))
-	errs := make([]error, len(ids))
+func (m *Dataloader) FetchUsers(ctx context.Context, names []string) ([]*userv1beta1.User, []error) {
+	m.Logger.Debug("fetch users", zap.Strings("ids", names))
+	users := make([]*userv1beta1.User, len(names))
+	errs := make([]error, len(names))
 	response, err := m.UserServiceClient.BatchGetUsers(ctx, &userv1beta1.BatchGetUsersRequest{
-		Ids: ids,
+		Names: names,
 	})
 	if err != nil {
 		for i := range errs {
@@ -46,12 +46,12 @@ func (m *Dataloader) FetchUsers(ctx context.Context, ids []string) ([]*userv1bet
 		}
 		return nil, errs
 	}
-	idToIndexMap := makeIndexMap(ids)
+	nameToIndexMap := makeIndexMap(names)
 	for _, user := range response.FoundUsers {
-		users[idToIndexMap[user.Id]] = user
+		users[nameToIndexMap[user.Name]] = user
 	}
-	for _, missingID := range response.MissingIds {
-		errs[idToIndexMap[missingID]] = fmt.Errorf("not found: %s", missingID)
+	for _, missingName := range response.MissingNames {
+		errs[nameToIndexMap[missingName]] = fmt.Errorf("not found: %s", missingName)
 	}
 	return users, errs
 }

@@ -18,11 +18,11 @@ func (t *Todo) User(ctx context.Context, todo *todov1beta1.Todo) (*userv1beta1.U
 	t.Logger.Debug("todo: user", zap.Any("todo", todo))
 	userLoader, ok := middleware.UserLoaderFromContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("resolve todo %s user %s: no user data loader in context", todo.Id, todo.UserId)
+		return nil, fmt.Errorf("resolve todo %s user %s: no user data loader in context", todo.Name, todo.UserName)
 	}
-	user, err := userLoader.Load(todo.UserId)
+	user, err := userLoader.Load(todo.UserName)
 	if err != nil {
-		return nil, fmt.Errorf("resolve todo %s user %s: %w", todo.Id, todo.UserId, err)
+		return nil, fmt.Errorf("resolve todo %s user %s: %w", todo.UserName, todo.UserName, err)
 	}
 	return user, nil
 }
