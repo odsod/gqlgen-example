@@ -17,24 +17,34 @@ import "odsod/user/v1beta1/user.proto";
 service UserService {
   // List users.
   rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+
   // Get a user.
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
+
   // Get a batch of users.
   rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+
   // Create a user.
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+
   // Update a user.
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+
   // Delete a user.
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+
+  // Unedelete a user.
+  rpc UndeleteUser(UndeleteUserRequest) returns (UndeleteUserResponse);
 }
 
 // List users request.
 message ListUsersRequest {
   // The maximum number of items to return.
   int32 page_size = 1;
+
   // The next_page_token value returned from a previous List request, if any.
   string page_token = 2;
+
   // Flag for including deleted resources.
   bool show_deleted = 3;
 }
@@ -43,9 +53,13 @@ message ListUsersRequest {
 message ListUsersResponse {
   // The returned users.
   repeated odsod.user.v1beta1.User users = 1;
+
   // Token to retrieve the next page of results, or empty if there are no
   // more results in the list.
   string next_page_token = 2;
+
+  // The total number of users in the list.
+  int32 total_size = 3;
 }
 
 // Page token for the list users endpoint.
@@ -129,5 +143,17 @@ message DeleteUserRequest {
 // Delete user response.
 message DeleteUserResponse {
   // The user marked for deletion.
+  odsod.user.v1beta1.User user = 1;
+}
+
+// Undelete user request.
+message UndeleteUserRequest {
+  // The ID of the user undelete.
+  string id = 1;
+}
+
+// Undelete user response.
+message UndeleteUserResponse {
+  // The undeleted user.
   odsod.user.v1beta1.User user = 1;
 }
