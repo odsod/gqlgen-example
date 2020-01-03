@@ -41,10 +41,7 @@ func (m *Dataloader) FetchUsers(ctx context.Context, names []string) ([]*userv1b
 		Names: names,
 	})
 	if err != nil {
-		for i := range errs {
-			errs[i] = err
-		}
-		return nil, errs
+		return nil, []error{err}
 	}
 	nameToIndexMap := makeIndexMap(names)
 	for _, user := range response.FoundUsers {
