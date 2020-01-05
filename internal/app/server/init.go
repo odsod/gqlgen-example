@@ -70,7 +70,10 @@ func InitUserServiceServer(
 	ctx context.Context,
 	logger *zap.Logger,
 ) (userv1beta1.UserServiceServer, error) {
-	s := userservice.NewMemory(logger)
+	s, err := userservice.NewMemory(logger)
+	if err != nil {
+		return nil, fmt.Errorf("init user service server: %w", err)
+	}
 	for _, user := range []struct {
 		id          string
 		displayName string

@@ -79,6 +79,20 @@ message ListUsersRequest {
 
   // Flag for including deleted resources.
   bool show_deleted = 3;
+
+  // An optional filter.
+  //
+  // Uses [Common Expression Language](https://opensource.google/projects/cel):
+  // https://opensource.google/projects/cel
+  //
+  // Available declarations:
+  //
+  // - [user][odsod.user.v1beta1.User]
+  //
+  // For example:
+  //
+  //    user.full_name in ["Jane Doe", "John Doe"]`
+  string filter = 4;
 }
 
 // List users response.

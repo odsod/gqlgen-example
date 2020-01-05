@@ -10,23 +10,31 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
+	"github.com/odsod/gqlgen-example/internal/resourcefilter"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type Memory struct {
-	logger *zap.Logger
-	mu     sync.Mutex
-	users  []*userv1beta1.User
+	logger         *zap.Logger
+	resourceFilter *resourcefilter.Resource
+	mu             sync.Mutex
+	users          []*userv1beta1.User
 }
 
 var _ userv1beta1.UserServiceServer = &Memory{}
 
-func NewMemory(logger *zap.Logger) *Memory {
-	return &Memory{
-		logger: logger,
+func NewMemory(logger *zap.Logger) (*Memory, error) {
+	resourceFilter, err := resourcefilter.NewResource("user", &userv1beta1.User{})
+	if err != nil {
+		return nil, fmt.Errorf("new in-memory user service: %w", err)
 	}
+	s := &Memory{
+		logger:         logger,
+		resourceFilter: resourceFilter,
+	}
+	return s, nil
 }
 
 func (s *Memory) ListUsers(
@@ -38,26 +46,36 @@ func (s *Memory) ListUsers(
 		s.logger.Error("parse page token", zap.Error(err), zap.String("pageToken", r.PageToken))
 		return nil, status.Error(codes.InvalidArgument, "malformed page token")
 	}
-	users := s.users
-	if !r.ShowDeleted {
-		users = make([]*userv1beta1.User, 0, len(s.users))
-		for _, u := range s.users {
-			if !u.Deleted {
-				users = append(users, u)
-			}
+	var filterStr string
+	switch {
+	case !r.ShowDeleted && r.Filter == "":
+		filterStr = "!user.deleted"
+	case !r.ShowDeleted && r.Filter != "":
+		filterStr = fmt.Sprintf("(%s) && !user.deleted", r.Filter)
+	case r.Filter != "":
+		filterStr = r.Filter
+	default:
+		filterStr = "true"
+	}
+	filter, err := s.resourceFilter.CompileFilter(filterStr)
+	if err != nil {
+		s.logger.Error("parse filter", zap.Error(err), zap.String("filter", filterStr))
+		return nil, status.Error(codes.InvalidArgument, "invalid filter")
+	}
+	users := make([]*userv1beta1.User, 0, len(s.users))
+	for _, u := range s.users {
+		if filter.Test(u) {
+			users = append(users, u)
 		}
 	}
+	s.logger.Debug("filtered", zap.Any("users", users))
 	res := &userv1beta1.ListUsersResponse{
 		Users:     make([]*userv1beta1.User, 0, r.PageSize),
 		TotalSize: int32(len(users)),
 	}
 	for int(pageToken.Offset) < len(users) && len(res.Users) < int(r.PageSize) {
-		u := s.users[pageToken.Offset]
+		res.Users = append(res.Users, users[pageToken.Offset])
 		pageToken.Offset++
-		if u.Deleted && !r.ShowDeleted {
-			continue
-		}
-		res.Users = append(res.Users, u)
 	}
 	if int(pageToken.Offset) < len(users) {
 		str, err := pageToken.MarshalString()
