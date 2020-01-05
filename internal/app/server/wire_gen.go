@@ -51,8 +51,6 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 		UserServiceClient: userServiceClient,
 		Logger:            logger,
 	}
-	serveMux := InitHTTPServeMux(cfg, logger, executableSchema, dataloader)
-	server := InitHTTPServer(serveMux)
 	userServiceServer, err := InitUserServiceServer(ctx, logger)
 	if err != nil {
 		cleanup3()
@@ -60,6 +58,15 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
+	serveMux, err := InitGRPCGatewayServeMux(ctx, userServiceServer)
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	httpServeMux := InitHTTPServeMux(cfg, logger, executableSchema, dataloader, serveMux)
+	server := InitHTTPServer(httpServeMux)
 	todoServiceServer, err := InitTodoServiceServer(ctx, logger)
 	if err != nil {
 		cleanup3()

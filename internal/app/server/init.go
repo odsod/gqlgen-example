@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/handler"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/odsod/gqlgen-example/internal/gen/graph"
 	todov1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/todo/v1beta1"
 	userv1beta1 "github.com/odsod/gqlgen-example/internal/gen/proto/go/odsod/user/v1beta1"
@@ -105,6 +106,19 @@ func InitUserServiceServer(
 	return s, nil
 }
 
+func InitGRPCGatewayServeMux(
+	ctx context.Context,
+	userServiceServer userv1beta1.UserServiceServer,
+) (*runtime.ServeMux, error) {
+	mux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{}),
+	)
+	if err := userv1beta1.RegisterUserServiceHandlerServer(ctx, mux, userServiceServer); err != nil {
+		return nil, fmt.Errorf("init gRPC gateway serve mux: %w", err)
+	}
+	return mux, nil
+}
+
 func InitGRPCServer(
 	userServiceServer userv1beta1.UserServiceServer,
 	todoServiceServer todov1beta1.TodoServiceServer,
@@ -129,12 +143,17 @@ func InitHTTPServeMux(
 	logger *zap.Logger,
 	executableSchema graphql.ExecutableSchema,
 	dataLoaderMiddleware *middleware.Dataloader,
+	grpcGatewayServeMux *runtime.ServeMux,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
 	for _, route := range []struct {
 		pattern string
 		handler http.Handler
 	}{
+		{
+			pattern: c.HTTPServeMux.Patterns.GRPCGateway,
+			handler: grpcGatewayServeMux,
+		},
 		{
 			pattern: c.HTTPServeMux.Patterns.GraphQL,
 			handler: dataLoaderMiddleware.ApplyMiddleware(handler.GraphQL(executableSchema)),

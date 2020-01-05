@@ -10,31 +10,63 @@ option go_package = "userv1beta1";
 option objc_class_prefix = "USER";
 option php_namespace = "Odsod\\User\\V1beta1";
 
+import "google/api/annotations.proto";
 import "google/protobuf/field_mask.proto";
 import "odsod/user/v1beta1/user.proto";
 
 // Manages users.
 service UserService {
   // List users.
-  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {
+      get: "/v1beta1/users"
+    };
+  };
 
   // Get a user.
-  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/v1beta1/{name=users/*}"
+    };
+  };
 
   // Get a batch of users.
-  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse);
+  rpc BatchGetUsers(BatchGetUsersRequest) returns (BatchGetUsersResponse) {
+    option (google.api.http) = {
+      post: "/v1beta1/users:batchGet"
+      body: "*"
+    };
+  };
 
   // Create a user.
-  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {
+    option (google.api.http) = {
+      post: "/v1beta1/users"
+      body: "user"
+    };
+  };
 
   // Update a user.
-  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      patch: "/v1beta1/{user.name=users/*}"
+      body: "user"
+    };
+  };
 
   // Delete a user.
-  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse);
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
+    option (google.api.http) = {
+      delete: "/v1beta1/{name=users/*}"
+    };
+  };
 
   // Unedelete a user.
-  rpc UndeleteUser(UndeleteUserRequest) returns (UndeleteUserResponse);
+  rpc UndeleteUser(UndeleteUserRequest) returns (UndeleteUserResponse) {
+    option (google.api.http) = {
+      post: "/v1beta1/{name=users/*}:undelete"
+    };
+  };
 }
 
 // List users request.

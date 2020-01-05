@@ -10,6 +10,7 @@ require (
 	github.com/google/cel-go v0.4.0-alpha.2
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0
+	github.com/grpc-ecosystem/grpc-gateway v1.12.1
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.6.1
@@ -23,6 +24,6 @@ require (
 	golang.org/x/sys v0.0.0-20191228213918-04cbcbbfeed8 // indirect
 	golang.org/x/tools v0.0.0-20191227053925-7b8e75db28f4 // indirect
 	google.golang.org/genproto v0.0.0-20191028173616-919d9bdd9fe6
-	google.golang.org/grpc v1.21.1
+	google.golang.org/grpc v1.24.0
 	gopkg.in/yaml.v2 v2.2.7 // indirect
 )

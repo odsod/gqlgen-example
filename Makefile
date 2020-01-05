@@ -22,6 +22,7 @@ include tools/grpcurl/rules.mk
 include tools/gqlgen/rules.mk
 include tools/protoc/rules.mk
 include tools/protoc-gen-go/rules.mk
+include tools/protoc-gen-grpc-gateway/rules.mk
 include tools/wire/rules.mk
 
 .PHONY: buf-check-lint
@@ -38,13 +39,17 @@ build/proto.bin: $(buf) $(proto_files)
 protoc-generate: build/protoc-generate
 
 build/protoc-generate: go_out := internal/gen/proto/go
-build/protoc-generate: build/proto.bin $(curr_file) $(protoc) $(protoc_gen_go)
+build/protoc-generate: build/proto.bin $(curr_file) $(protoc) $(protoc_gen_go) $(protoc_gen_grpc_gateway)
 	rm -rf $(go_out)
 	mkdir -p $(go_out)
-	$(protoc) --descriptor_set_in=$< --go_out=plugins=grpc:$(go_out) \
-		$(shell cd api/proto && find odsod/todo -type f)
-	$(protoc) --descriptor_set_in=$< --go_out=plugins=grpc:$(go_out) \
-		$(shell cd api/proto && find odsod/user -type f)
+	$(protoc) --descriptor_set_in=$< \
+		--go_out=plugins=grpc:$(go_out) \
+		--grpc-gateway_out=logtostderr=true:$(go_out) \
+		$(shell cd api/proto/src && find odsod/todo -type f)
+	$(protoc) --descriptor_set_in=$< \
+		--go_out=plugins=grpc:$(go_out) \
+		--grpc-gateway_out=logtostderr=true:$(go_out) \
+		$(shell cd api/proto/src && find odsod/user -type f)
 	touch $@
 
 .PHONY: dataloaders-generate
@@ -85,3 +90,7 @@ go-lint: $(golangci_lint)
 .PHONY: grpcurl-list
 grpcurl-list: $(grpcurl)
 	$(grpcurl) -plaintext localhost:8081 list
+
+.PHONY: curl-list-users
+curl-list-users:
+	curl -s 'localhost:8080/v1beta1/users?page_size=10' | jq .

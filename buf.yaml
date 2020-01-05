@@ -1,6 +1,7 @@
 build:
   roots:
-    - api/proto
+    - api/proto/src
+    - api/proto/vendor
 
 lint:
   use:

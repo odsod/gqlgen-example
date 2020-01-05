@@ -19,6 +19,7 @@ func Init(ctx context.Context, cfg *Config) (*App, func(), error) {
 			InitHTTPServeMux,
 			InitExecutableSchema,
 			InitGRPCServer,
+			InitGRPCGatewayServeMux,
 			InitUserServiceServer,
 			InitUserServiceClient,
 			InitTodoServiceServer,

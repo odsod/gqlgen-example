@@ -10,6 +10,7 @@ import (
 type Config struct {
 	HTTPServeMux struct {
 		Patterns struct {
+			GRPCGateway       string
 			GraphQL           string
 			GraphQLPlayground string
 		}
